@@ -132,15 +132,15 @@ npm run deploy
 or
 
 ```shell
-$ sls deploy --region "West US 2"
-$ sls deploy --region "North Central US"
-$ sls deploy --region "West Europe"
+$ npx sls deploy --region "West US 2"
+$ npx sls deploy --region "North Central US"
+$ npx sls deploy --region "West Europe"
 
-$ sls deploy --region "West Europe" --prefix "hyperionSquad"
+$ npx sls deploy --region "West Europe" --prefix "hyperionSquad"
 
-$ sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "dev"
-$ sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "test"
-$ sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "prod"
+$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "dev"
+$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "test"
+$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "prod"
 ```
 
 Deployment is done and screenshot is below.
@@ -173,6 +173,8 @@ Refer to [Serverless docs](https://www.serverless.com/framework/docs/providers/a
 npx sls deploy list
 ```
 
+![Image10](/images/image10.png)
+
 # Print serverless.yml
 
 Run the following command to print your serverless.yml config file with all variables resolved.
@@ -181,4 +183,82 @@ Refer to [Serverless docs](https://www.serverless.com/framework/docs/providers/a
 
 ```shell
 npx sls print
+```
+
+![Image9](/images/image9.png)
+
+# Dry-Run Deployment
+
+Before you deploy your new function app, you may want to double check the resources that will be created, their generated names and other basic configuration info
+
+This will print out a basic summary of what your deployed service will look like
+
+```shell
+# -d is short for --dryrun
+npx sls deploy --dryrun
+```
+
+For a more detailed look into the generated ARM template for your resource group, add the --arm (or -a) flag
+
+```shell
+npx sls deploy --dryrun --arm
+```
+
+![Image12](/images/image12.png)
+
+# Get a Summary of Deployed Azure Function App
+
+To see a basic summary of your application (same format as the dry-run)
+
+```shell
+npx sls info
+```
+
+To look at the ARM template for the last successful deployment, add the --arm (or -a) flag
+
+```shell
+npx sls info --arm
+```
+
+You can also get information services with different stages, regions or resource groups by passing any of those flags. Example
+
+```shell
+npx sls info --stage prod --region ukw
+```
+
+![Image11](/images/image11.png)
+
+# Deleting Deployed Azure Function App
+
+If at any point you no longer need your service, you can run the following command to delete the resource group containing your Azure Function App and other depoloyed resources using
+
+```shell
+npx sls remove
+```
+
+You will then be prompted to enter the full name of the resource group as an extra safety before deleting the entire resource group.
+
+You can bypass this check by running
+
+```shell
+npx sls remove --force
+```
+
+# Cleanup serverless.yml
+
+To clean up files generated from the `npx sls offline build`
+
+```shell
+npx sls offline cleanup
+```
+
+# Creating or Removing Azure Functions
+
+```shell
+npx sls func add --name testFunc1
+```
+
+
+```shell
+npx sls func remove --name testFunc1
 ```
