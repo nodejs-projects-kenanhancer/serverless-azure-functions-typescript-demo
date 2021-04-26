@@ -75,9 +75,14 @@ Use one of the following commands to call `Azure Http Function` locally, and `--
 ```shell
 npx sls invoke local --port 7071 --function hello --data '{\"name\":\"kenan\"}'
 ```
+
+![Image13](/images/image13.png)
+
 ```shell
 curl http://localhost:7071/api/hello?name=kenan
 ```
+
+![Image14](/images/image14.png)
 
 # Azure Deployment Steps
 
