@@ -84,6 +84,26 @@ curl http://localhost:7071/api/hello?name=kenan
 
 ![Image14](/images/image14.png)
 
+# Testing Deployed Azure Http Function
+
+just without the local and port options.
+
+```shell
+npx sls invoke --function hello --data '{\"name\":\"kenan\"}'
+```
+
+![Image15](/images/image15.png)
+
+or
+
+use curl command as below.
+
+```shell
+curl http://kenan-ukw-dev-azure-functions-typescript.azurewebsites.net/api/hello?name=kenan
+```
+
+![Image16](/images/image16.png)
+
 # Azure Deployment Steps
 
 ## Install Azure CLI
