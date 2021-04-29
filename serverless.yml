@@ -10,16 +10,92 @@ custom:
 provider:
   name: azure
   runtime: nodejs12
-  region: ${env:region, 'UK West'}
+  region: ${env:region, 'UK West'} #{UK West|UK South}
   stage: ${opt:stage, 'dev'}
   prefix: ${opt:prefix, 'kenan'}  # prefix of generated resource name
+  # storageAccount:
+  #   name: kenanhukwdevstorageaccount
+  # resourceGroup: ${self:provider.prefix}-${self:provider.region}-${self:provider.stage}-${self:service}-rg # comment this field for default auto generated value.
+  # deploymentName: ${self:provider.prefix}${self:provider.region}${self:provider.stage}${self:service}-DEPLOYMENT-t1619530107124 # comment this field for default auto generated value.
   # os: windows  # windows is default, linux is available
   # subscriptionId: 00000000-0000-0000-0000-000000000000
+  # tenantId:
 
   environment: # these will be created as application settings
     VARIABLE_FOO: "HELLO WORLD"
     FIRST_NAME: "KENAN"
     LAST_NAME: "HANCER"
+
+  # Default API Management configuration with Consumption sku(Stock-keeping-Unit)
+  # apim: true
+
+  # Start of your API Management configuration
+  # apim:
+  #   # name: ${self:provider.prefix}-${self:provider.region}-${self:provider.stage}-apim # comment this field for default auto generated value.
+  #   sku:
+  #     name: Developer #{Consumption|Developer|Basic|Standard|Premium}
+  #     capacity: 1
+  #   properties:
+  #     publisherName: Kenan Hancer
+  #     publisherEmail: kenanhancer@hotmail.com
+  #   # API specifications
+  #   apis:
+  #       # Name of the API
+  #     - name: greeting-api
+  #       subscriptionRequired: false
+  #       # Display name
+  #       displayName: Greeting API
+  #       # Description of API
+  #       description: The Greeting REST API
+  #       # HTTP protocols allowed
+  #       protocols:
+  #         - https
+  #       # Base path of API calls
+  #       path: products
+  #       # Tags for ARM resource
+  #       tags:
+  #         - tag1
+  #         - tag2
+  #       # No authorization
+  #       authorization: none
+  #       # Name of the API
+  #     - name: categories-api
+  #       subscriptionRequired: false
+  #       # Display name
+  #       displayName: Categories API
+  #       # Description of API
+  #       description: The Categories REST API
+  #       # HTTP protocols allowed
+  #       protocols:
+  #         - https
+  #       # Base path of API calls
+  #       path: categories
+  #       # Tags for ARM resource
+  #       tags:
+  #         - tag1
+  #         - tag2
+  #       # No authorization
+  #       authorization: none
+  #   backends:
+  #     - name: products-backend
+  #       url: api/products
+  #     - name: categories-backend
+  #       url: api/categories
+  #   # CORS Settings for APIM
+  #   cors:
+  #     allowCredentials: false
+  #     allowedOrigins:
+  #       - "*"
+  #     allowedMethods:ß
+  #       - GET
+  #       - POST
+  #       - PUT
+  #       - DELETE
+  #       - PATCH
+  #     allowedHeaders:
+  #       - "*"
+  #     exposeHeaders:
+  #       - "*"
 
   # you can define apim configuration here
   # apim:
@@ -64,7 +140,20 @@ functions:
           methods: 
             - get
           route: hello #<string>, default - <function name>
-          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+          authLevel: function #<enum - anonymous|function (default)|admin>
+    # API Management configuration for `hello` handler
+    # apim:
+    #   # The API to attach this operation
+    #   api: greeting-api
+    #   # The Backend use for the operation
+    #   backend: greeting-backend
+    #   operations:
+    #     # GET operation for `sayHello` handler
+    #     - method: get
+    #       # URL path for accessing handler
+    #       urlTemplate: /
+    #       # Display name inside Azure Portal
+    #       displayName: SayHello
 
   goodbye:
     handler: src/handlers/http/goodbye.sayGoodbye
@@ -74,7 +163,20 @@ functions:
           methods:
             - get
           route: bye
-          authLevel: anonymous
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+    # API Management configuration for `goodbye` handler
+    # apim:
+    #   # The API to attach this operation
+    #   api: greeting-api
+    #   # The Backend use for the operation
+    #   backend: greeting-backend
+    #   operations:
+    #     # GET operation for `sayGoodbye` handler
+    #     - method: get
+    #       # URL path for accessing handler
+    #       urlTemplate: /
+    #       # Display name inside Azure Portal
+    #       displayName: SayGoodbye
 
   timer1:
     handler: src/handlers/timer/timer1.printMessage
@@ -91,6 +193,52 @@ functions:
         x-azure-settings:
           name: timerObj #<string>, default - "myTimer", specifies which name is available on `context.bindings`
           schedule: 0 */5 * * * * #<string>, cron expression to run on
+
+  storageBlob1:
+    handler: src/handlers/storage/storageBlob1.handle
+    events:
+      - blob: true
+        x-azure-settings:
+          name: item # Specifies which name is available on `context`
+          path: samples-workitems/{blobname}.{blobextension} # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  StorageBlob2:
+    handler: src/handlers/storage/storageBlob2.handle
+    events:
+      - blob: true
+        x-azure-settings:
+          name: item # Specifies which name is available on `context`
+          path: images/{blobname}.png # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  storageQueue1:
+    handler: src/handlers/storage/storageQueue1.handle
+    events:
+      - queue: myqueue-items
+        x-azure-settings:
+          name: message # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
+
+  storageQueue2:
+    handler: src/handlers/storage/storageQueue2.handle
+    events:
+      - queue: myqueue-items2
+        x-azure-settings:
+          name: myQueueItem # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
+      - blob: true
+        x-azure-settings:
+          name: myInputBlob
+          path: samples-workitems2/{queueTrigger}
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - blob: true
+        x-azure-settings:
+          name: myOutputBlob
+          path: samples-workitems2/{queueTrigger}-Copy
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
 
 
   # The following are a few examples of other events you can configure:

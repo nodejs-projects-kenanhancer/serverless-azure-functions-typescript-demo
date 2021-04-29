@@ -15,16 +15,22 @@ Install all packages and dependencies via node package manager
 npm i
 ```
 
-# Running and Debugging Code Locally with Azure Emulator
+# Running and Debugging Code Locally with Microsoft Azure Emulator
 
 Refer to [Serverless docs](https://serverless.com/framework/docs/providers/azure/guide/intro/) for more information.
 
-Start `Azure Emulator` firstly.
+We need to have `Microsoft Azure Emulator` and `Microsoft Azure Storage Explorer` locally.
+
+Start `Microsoft Azure Emulator` firstly.
 ```shell
 npx azurite --silent
 ```
 
 ![Image5](/images/image5.png)
+
+Download and install [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+
+![Image18](/images/image18.png)
 
 
 To build the function binding files without spawning the process to start the function app.
@@ -52,13 +58,13 @@ func host start
 ![Image7](/images/image7.png)
 
 
-This code will start `Azure Emulator` firstly then host `Azure Functions` locally.
+This code will start `Microsoft Azure Emulator` firstly then host `Azure Functions` locally.
 
 ```shell
 npm run dev
 ```
 
-- If there are more than one project working with `Azure Emulator`, than change value of `LocalHttpPort` field in `local.settings.json` file
+- If there are more than one project working with `Microsoft Azure Emulator`, than change value of `LocalHttpPort` field in `local.settings.json` file
     - default value is `"LocalHttpPort": 7071`
 - Set value of `AzureWebJobsStorage` field in `local.settings.json` file one of the following values.
     - default value is `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"`
@@ -269,6 +275,14 @@ You can bypass this check by running
 npx sls remove --force
 ```
 
+Azure API Management service is soft-deleted so that we can recover it if needed. But in order to delete it permanently, 
+
+- [List deleted services](https://docs.microsoft.com/en-us/rest/api/apimanagement/2020-06-01-preview/deletedservices/listbysubscription#code-try-0)
+- [Purge deleted service](https://docs.microsoft.com/en-us/rest/api/apimanagement/2020-06-01-preview/deletedservices/purge#code-try-0)
+
+
+refer to [Microsoft Azure API Management docs](https://docs.microsoft.com/en-us/azure/api-management/soft-delete) for more details.
+
 # Cleanup serverless.yml
 
 To clean up files generated from the `npx sls offline build`
@@ -287,3 +301,11 @@ npx sls func add --name testFunc1
 ```shell
 npx sls func remove --name testFunc1
 ```
+
+# List All Azure Regions
+
+```shell
+az account list-locations -o table
+```
+
+![Image17](/images/image17.png)

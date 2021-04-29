@@ -4,10 +4,10 @@
   "description": "Azure Functions webpack sample for the Serverless framework using Typescript",
   "scripts": {
     "dev": "npx azurite --silent & npm start",
-    "start": "sls offline",
+    "start": "sls offline --config serverless.yml",
     "prestart": "npm run build",
-    "build": "sls offline build",
-    "deploy": "sls deploy --stage dev",
+    "build": "sls offline build --config serverless.yml",
+    "deploy": "sls deploy --stage dev --config serverless.yml",
     "start:azure:emulator": "npx azurite --silent",
     "test": "echo \"No tests yet...\"",
     "test2": "sls invoke local --port 7071 --function hello --data '{\"name\":\"kenan\"}'",
