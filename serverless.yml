@@ -132,6 +132,7 @@ plugins: # look for additional plugins in the community plugins repo: https://gi
   - serverless-offline
 
 functions:
+  # When a http request comes to http://localhost:7071/api/hello, hello.sayHello function will be triggered and it will write log.
   hello:
     handler: src/handlers/http/hello.sayHello
     events:
@@ -140,21 +141,9 @@ functions:
           methods: 
             - get
           route: hello #<string>, default - <function name>
-          authLevel: function #<enum - anonymous|function (default)|admin>
-    # API Management configuration for `hello` handler
-    # apim:
-    #   # The API to attach this operation
-    #   api: greeting-api
-    #   # The Backend use for the operation
-    #   backend: greeting-backend
-    #   operations:
-    #     # GET operation for `sayHello` handler
-    #     - method: get
-    #       # URL path for accessing handler
-    #       urlTemplate: /
-    #       # Display name inside Azure Portal
-    #       displayName: SayHello
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
 
+  # When a http request comes to http://localhost:7071/api/bye, goodbye.sayGoodbye function will be triggered and it will write log.
   goodbye:
     handler: src/handlers/http/goodbye.sayGoodbye
     events:
@@ -164,20 +153,25 @@ functions:
             - get
           route: bye
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
-    # API Management configuration for `goodbye` handler
-    # apim:
-    #   # The API to attach this operation
-    #   api: greeting-api
-    #   # The Backend use for the operation
-    #   backend: greeting-backend
-    #   operations:
-    #     # GET operation for `sayGoodbye` handler
-    #     - method: get
-    #       # URL path for accessing handler
-    #       urlTemplate: /
-    #       # Display name inside Azure Portal
-    #       displayName: SayGoodbye
 
+  # When a http request comes to http://localhost:7071/api/addPerson, addperson.handle function will be triggered and it will add record to Person table.
+  addPerson:
+    handler: src/handlers/http/addperson.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods: 
+            - get
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # timer1.handle function will be triggered every 10 seconds and it will write log.
   timer1:
     handler: src/handlers/timer/timer1.printMessage
     events:
@@ -186,6 +180,7 @@ functions:
           name: myTimer
           schedule: '*/10 * * * * *' #<string>, cron expression to run on
 
+  # timer2.handle function will be triggered every 5 seconds and it will write log.
   timer2:
     handler: src/handlers/timer/timer2.handle
     events:
@@ -194,6 +189,7 @@ functions:
           name: timerObj #<string>, default - "myTimer", specifies which name is available on `context.bindings`
           schedule: 0 */5 * * * * #<string>, cron expression to run on
 
+  # When a file comes to samples-workitems/ folder, storageBlob1.handle function will be triggered and it will write log.
   storageBlob1:
     handler: src/handlers/storage/storageBlob1.handle
     events:
@@ -202,16 +198,28 @@ functions:
           name: item # Specifies which name is available on `context`
           path: samples-workitems/{blobname}.{blobextension} # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
-
+  
+  # When a .yaml extension file comes to src/ folder, storageBlob2.handle function will be triggered and it will write log.
   StorageBlob2:
     handler: src/handlers/storage/storageBlob2.handle
     events:
       - blob: true
         x-azure-settings:
           name: item # Specifies which name is available on `context`
-          path: images/{blobname}.png # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          path: src/{blobname}.yaml # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
 
+  # When a .js extension file comes to src/ folder, storageBlob2.handle function will be triggered and it will write log.
+  StorageBlob3:
+    handler: src/handlers/storage/storageBlob2.handle
+    events:
+      - blob: true
+        x-azure-settings:
+          name: item # Specifies which name is available on `context`
+          path: src/{blobname}.js # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a message comes to myqueue-items queue, storageQueue1.handle function will be triggered and it will write log.
   storageQueue1:
     handler: src/handlers/storage/storageQueue1.handle
     events:
@@ -220,6 +228,7 @@ functions:
           name: message # Specifies which name is available on `context`
           connection: AzureWebJobsStorage
 
+  #  When a message comes to myqueue-items2 queue, storageQueue2.handle function will be triggered and it will retrieve file from samples-workitems2 blob and create a new copy in samples-workitems2 blob again
   storageQueue2:
     handler: src/handlers/storage/storageQueue2.handle
     events:
@@ -239,6 +248,68 @@ functions:
           path: samples-workitems2/{queueTrigger}-Copy
           direction: out
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a message comes to myqueue-select-person-row2 queue, storageQueue3.handle function will be triggered and it will retrieve row from Person table.
+  # partitionKey and rowKey are not specified so all records will come from Person table.
+  storageQueue3:
+    handler: src/handlers/storage/storageQueue3.handle
+    events:
+      - queue: myqueue-select-person-row2
+        x-azure-settings:
+          name: myQueueItem # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
+      - table: true
+        x-azure-settings:
+          name: personEntities
+          tableName: Person
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a message comes to myqueue-insert-person-row queue, storageQueue4.handle function will be triggered and it will insert row in Person table.
+  storageQueue4:
+    handler: src/handlers/storage/storageQueue4.handle
+    events:
+      - queue: myqueue-insert-person-row
+        x-azure-settings:
+          name: myQueueItem # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a message comes to myqueue-select-person-row queue, storageQueue5.handle function will be triggered and it will retrieve row from Person table.
+  # partitionKey and rowKey are specified so only one record will come from Person table.
+  storageQueue5:
+    handler: src/handlers/storage/storageQueue5.handle
+    events:
+      - queue: myqueue-select-person-row
+        x-azure-settings:
+          name: myQueueItem # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          partitionKey: "{queueTrigger}"
+          rowKey: "FirstName_{queueTrigger}"
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   # The following are a few examples of other events you can configure:

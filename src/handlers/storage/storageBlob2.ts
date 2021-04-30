@@ -1,9 +1,11 @@
 import { AzureFunction, Context } from "@azure/functions"
 
-const handle: AzureFunction = async function (context: Context): Promise<void> {
+const handle: AzureFunction = function (context: Context, item): void {
 
-    context.log('Node.js Queue trigger function processed', context.bindings.myQueueItem);
-    context.bindings.myOutputBlob = context.bindings.myInputBlob;
+    const { bindingData: {blobname} } = context;
+
+    context.log(`Received file: ${blobname}\n`, item.toString('utf8'));
+
     context.done();
 };
 

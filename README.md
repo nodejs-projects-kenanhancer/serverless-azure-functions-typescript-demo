@@ -22,6 +22,8 @@ Refer to [Serverless docs](https://serverless.com/framework/docs/providers/azure
 We need to have `Microsoft Azure Emulator` and `Microsoft Azure Storage Explorer` locally.
 
 Start `Microsoft Azure Emulator` firstly.
+
+Refer to [azurite](https://github.com/azure/azurite)
 ```shell
 npx azurite --silent
 ```
@@ -58,19 +60,27 @@ func host start
 ![Image7](/images/image7.png)
 
 
-This code will start `Microsoft Azure Emulator` firstly then host `Azure Functions` locally.
+If you want to `npm start` directly, you should run `npx azurite` in other terminall firstly, otherwise project will not start. so, you can use the following code.
+
+```shell
+npx azurite --silent & npm start
+```
+
+If you want to just start development locally, then run the following code. This code will start `Microsoft Azure Emulator` firstly then host `Azure Functions` locally.
 
 ```shell
 npm run dev
 ```
 
+![Image19](/images/image19.png)
+
 - If there are more than one project working with `Microsoft Azure Emulator`, than change value of `LocalHttpPort` field in `local.settings.json` file
     - default value is `"LocalHttpPort": 7071`
 - Set value of `AzureWebJobsStorage` field in `local.settings.json` file one of the following values.
-    - default value is `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"`
+    - default value is `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"` but if you need to to connect `Table storage` as well then use second option.
     
     1. `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"` 
-    1. `"AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=https://127.0.0.1:10001/devstoreaccount1;"`
+    1. `"AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"`
 
 
 
