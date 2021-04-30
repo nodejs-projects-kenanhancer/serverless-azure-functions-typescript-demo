@@ -1,0 +1,13 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "timerTrigger",
+      "direction": "in",
+      "name": "timerObj",
+      "schedule": "0 */5 * * * *"
+    }
+  ],
+  "entryPoint": "handle",
+  "scriptFile": "../.webpack/service/src/handlers/timer/timer2.js"
+}

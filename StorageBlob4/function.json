@@ -1,0 +1,21 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "blobTrigger",
+      "direction": "in",
+      "name": "image",
+      "path": "sample-images/{filename}",
+      "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "imageSmall",
+      "path": "sample-images-sm/{filename}",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "entryPoint": "handle",
+  "scriptFile": "../.webpack/service/src/handlers/storage/storageBlob4.js"
+}

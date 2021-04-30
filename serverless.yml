@@ -12,7 +12,7 @@ provider:
   runtime: nodejs12
   region: ${env:region, 'UK West'} #{UK West|UK South}
   stage: ${opt:stage, 'dev'}
-  prefix: ${opt:prefix, 'kenan'}  # prefix of generated resource name
+  prefix: ${opt:prefix, 'kenan'} # prefix of generated resource name
   # storageAccount:
   #   name: kenanhukwdevstorageaccount
   # resourceGroup: ${self:provider.prefix}-${self:provider.region}-${self:provider.stage}-${self:service}-rg # comment this field for default auto generated value.
@@ -25,6 +25,7 @@ provider:
     VARIABLE_FOO: "HELLO WORLD"
     FIRST_NAME: "KENAN"
     LAST_NAME: "HANCER"
+    STORAGE_QUEUE6_NAME: "myqueue-items22"
 
   # Default API Management configuration with Consumption sku(Stock-keeping-Unit)
   # apim: true
@@ -138,7 +139,7 @@ functions:
     events:
       - http: true
         x-azure-settings:
-          methods: 
+          methods:
             - get
           route: hello #<string>, default - <function name>
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
@@ -160,7 +161,7 @@ functions:
     events:
       - http: true
         x-azure-settings:
-          methods: 
+          methods:
             - get
             - post
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
@@ -170,6 +171,30 @@ functions:
           tableName: Person
           direction: out
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/addPerson, addperson.handle function will be triggered and it will add record to Person table.
+  getFileContent:
+    handler: src/handlers/http/getfilecontent.handle
+    events:
+      - http: true
+        x-azure-settings:
+          name: info
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+          webHookType: genericJson
+      - blob: true
+        x-azure-settings:
+          name: blobContents
+          path: strings/{BlobName}
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
 
   # timer1.handle function will be triggered every 10 seconds and it will write log.
   timer1:
@@ -178,7 +203,7 @@ functions:
       - timer: true
         x-azure-settings:
           name: myTimer
-          schedule: '*/10 * * * * *' #<string>, cron expression to run on
+          schedule: "*/10 * * * * *" #<string>, cron expression to run on
 
   # timer2.handle function will be triggered every 5 seconds and it will write log.
   timer2:
@@ -198,7 +223,7 @@ functions:
           name: item # Specifies which name is available on `context`
           path: samples-workitems/{blobname}.{blobextension} # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
-  
+
   # When a .yaml extension file comes to src/ folder, storageBlob2.handle function will be triggered and it will write log.
   StorageBlob2:
     handler: src/handlers/storage/storageBlob2.handle
@@ -218,6 +243,33 @@ functions:
           name: item # Specifies which name is available on `context`
           path: src/{blobname}.js # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a file comes to sample-images/ folder, storageBlob4.handle function will be triggered and it will copy file to sample-images-sm/ folder.
+  StorageBlob4:
+    handler: src/handlers/storage/storageBlob4.handle
+    events:
+      - blob: true
+        x-azure-settings:
+          name: image # Specifies which name is available on `context`
+          path: sample-images/{filename} # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - blob: true
+        x-azure-settings:
+          name: imageSmall # Specifies which name is available on `context`
+          path: sample-images-sm/{filename} # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a file comes to testContainerName/ folder as dash separated with .csv extension, storageBlob5.handle function will be triggered and it will write log.
+  StorageBlob5:
+    handler: src/handlers/storage/storageBlob5.handle
+    events:
+      - blob: true
+        x-azure-settings:
+          name: image # Specifies which name is available on `context`
+          path: testcontainername/{date}-{filetype}.csv # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
 
   # When a message comes to myqueue-items queue, storageQueue1.handle function will be triggered and it will write log.
   storageQueue1:
@@ -298,19 +350,15 @@ functions:
           direction: in
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  # When a message comes to myqueue-items2 queue, storageQueue6.handle function will be triggered and it will write log.
+  # Queue name is coming from environment variables.
+  storageQueue6:
+    handler: src/handlers/storage/storageQueue6.handle
+    events:
+      - queue: ${self:provider.environment.STORAGE_QUEUE6_NAME, 'myqueue-items2'}
+        x-azure-settings:
+          name: message # Specifies which name is available on `context`
+          connection: AzureWebJobsStorage
 
   # The following are a few examples of other events you can configure:
   # storageBlob:

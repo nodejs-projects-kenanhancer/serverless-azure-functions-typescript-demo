@@ -1,0 +1,14 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "queueTrigger",
+      "direction": "in",
+      "name": "message",
+      "queueName": "myqueue-items22",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "entryPoint": "handle",
+  "scriptFile": "../.webpack/service/src/handlers/storage/storageQueue6.js"
+}

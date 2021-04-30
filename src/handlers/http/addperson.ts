@@ -7,6 +7,11 @@ const handle: AzureFunction = function (context: Context, req: HttpRequest): voi
 
     context.bindings.personEntity = { PartitionKey: uuidv4(), RowKey: 'FirstName', Name: name };
 
+    context.res = {
+        status: 200, /* Defaults to 200 */
+        body: { data: "done" }
+    };
+
     // context.bindings.personEntity = [];
     // context.bindings.personEntity.push({
     //     PartitionKey: "Test",

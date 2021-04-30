@@ -1,0 +1,21 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "queueTrigger",
+      "direction": "in",
+      "name": "myQueueItem",
+      "queueName": "myqueue-select-person-row2",
+      "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "table",
+      "direction": "in",
+      "name": "personEntities",
+      "tableName": "Person",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "entryPoint": "handle",
+  "scriptFile": "../.webpack/service/src/handlers/storage/storageQueue3.js"
+}
