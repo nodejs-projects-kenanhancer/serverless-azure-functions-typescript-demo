@@ -133,9 +133,9 @@ plugins: # look for additional plugins in the community plugins repo: https://gi
   - serverless-offline
 
 functions:
-  # When a http request comes to http://localhost:7071/api/hello, hello.sayHello function will be triggered and it will write log.
-  hello:
-    handler: src/handlers/http/hello.sayHello
+  # When a http request comes to http://localhost:7071/api/hello, httpTrigger_fn1.handle function will be triggered and it will write log.
+  httpTrigger_fn1:
+    handler: src/handlers/http/httpTrigger_fn1.handle
     events:
       - http: true
         x-azure-settings:
@@ -144,26 +144,28 @@ functions:
           route: hello #<string>, default - <function name>
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
 
-  # When a http request comes to http://localhost:7071/api/bye, goodbye.sayGoodbye function will be triggered and it will write log.
-  goodbye:
-    handler: src/handlers/http/goodbye.sayGoodbye
+  # When a http request comes to http://localhost:7071/api/goodbye, httpTrigger_fn2.handle function will be triggered and it will write log.
+  httpTrigger_fn2:
+    handler: src/handlers/http/httpTrigger_fn2.handle
     events:
       - http: true
         x-azure-settings:
           methods:
             - get
-          route: bye
+          route: goodbye
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
 
-  # When a http request comes to http://localhost:7071/api/addPerson, addperson.handle function will be triggered and it will add record to Person table.
-  addPerson:
-    handler: src/handlers/http/addperson.handle
+  # When a http request comes to http://localhost:7071/api/addpersonv1, httpTriggerToStorageTable_fn1.handle function will be triggered and it will add record to Person table.
+  # Send the following payload in request body
+  # { "name": "Kenan Hancer" }
+  httpTriggerToStorageTable_fn1:
+    handler: src/handlers/http/httpTriggerToStorageTable_fn1.handle
     events:
       - http: true
         x-azure-settings:
           methods:
-            - get
             - post
+          route: addpersonv2
           authLevel: anonymous #<enum - anonymous|function (default)|admin>
       - table: true
         x-azure-settings:
@@ -175,9 +177,101 @@ functions:
         x-azure-settings:
           direction: out
 
-  # When a http request comes to http://localhost:7071/api/addPerson, addperson.handle function will be triggered and it will add record to Person table.
-  getFileContent:
-    handler: src/handlers/http/getfilecontent.handle
+  # When a http request comes to http://localhost:7071/api/addpersonv3, httpTriggerToStorageTable_fn2.handle function will be triggered and it will add record to Person table.
+  # Send the following payload in request body
+  # { "first_name": "Kenan", "last_name": "Hancer", "age": 37 }
+  httpTriggerToStorageTable_fn2:
+    handler: src/handlers/http/httpTriggerToStorageTable_fn2.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          route: addpersonv3
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/getperson, httpTriggerFromStorageTable_fn1.handle function will be triggered and it will retrieve record from Person table.
+  # Send the following payload in request body
+  # { "PartitionKey": "********", "RowKey": "*******" }
+  httpTriggerFromStorageTable_fn1:
+    handler: src/handlers/http/httpTriggerFromStorageTable_fn1.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          route: getperson
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          partitionKey: "{PartitionKey}"
+          rowKey: "{RowKey}"
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/httpTriggerToStorageBlob_fn1, httpTriggerToStorageBlob_fn1.handle function will be triggered and it will write body of http request to created file.
+  # Azure Functions binding expression patterns - Create GUIDs
+  # Send the following payload in request body
+  # { "name": "Kenan Hancer" }
+  httpTriggerToStorageBlob_fn1:
+    handler: src/handlers/http/httpTriggerToStorageBlob_fn1.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - blob: true
+        x-azure-settings:
+          name: blobOutput
+          path: my-output-container/{rand-guid}.txt
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/httpTriggerToStorageBlob_fn2, httpTriggerToStorageBlob_fn2.handle function will be triggered and it will write body of http request to created file.
+  # Azure Functions binding expression patterns - Current time
+  # Send the following payload in request body
+  # { "name": "Kenan Hancer" }
+  httpTriggerToStorageBlob_fn2:
+    handler: src/handlers/http/httpTriggerToStorageBlob_fn1.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - blob: true
+        x-azure-settings:
+          name: blobOutput
+          path: my-output-container/{DateTime}.txt
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/httpTriggerFromStorageBlob_fn1, httpTriggerFromStorageBlob_fn1.handle function will be triggered and it will return file content.
+  # Send the following payload in request body
+  # { "BlobName": "echo-api.yaml" }
+  httpTriggerFromStorageBlob_fn1:
+    handler: src/handlers/http/httpTriggerFromStorageBlob_fn1.handle
     events:
       - http: true
         x-azure-settings:
@@ -196,27 +290,119 @@ functions:
         x-azure-settings:
           direction: out
 
-  # timer1.handle function will be triggered every 10 seconds and it will write log.
-  timer1:
-    handler: src/handlers/timer/timer1.printMessage
+  # When a http request comes to http://localhost:7071/api/httpTriggerFromStorageBlob_fn2, httpTriggerFromStorageBlob_fn1.handle function will be triggered and it will return file content.
+  # Send the following payload in request body
+  # { "BlobName": { "FileName":"echo-api", "Extension":"yaml" } }
+  httpTriggerFromStorageBlob_fn2:
+    handler: src/handlers/http/httpTriggerFromStorageBlob_fn1.handle
+    events:
+      - http: true
+        x-azure-settings:
+          name: info
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+          # webHookType: genericJson
+      - blob: true
+        x-azure-settings:
+          name: blobContents
+          path: strings/{BlobName.FileName}.{BlobName.Extension}
+          direction: in
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/httpTriggerToStorageQueue_fn1, httpTriggerToStorageQueue_fn1.handle function will be triggered and it will push message to queue.
+  # Send the following payload in request body
+  # { "name": "Kenan Hancer" }
+  httpTriggerToStorageQueue_fn1:
+    handler: src/handlers/http/httpTriggerToStorageQueue_fn1.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - queue: myqueue-items3
+        x-azure-settings:
+          name: message # Specifies which name is available on `context`
+          direction: out
+          connection: AzureWebJobsStorage
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # When a http request comes to http://localhost:7071/api/httpTriggerToStorageQueue_fn2, httpTriggerToStorageQueue_fn2.handle function will be triggered and it will push message to queue.
+  # Send the following payload in request body
+  # { "first_name": "Kenan", "last_name": "Hancer", "age": 37 }
+  httpTriggerToStorageQueue_fn2:
+    handler: src/handlers/http/httpTriggerToStorageQueue_fn2.handle
+    events:
+      - http: true
+        x-azure-settings:
+          methods:
+            - post
+          authLevel: anonymous #<enum - anonymous|function (default)|admin>
+      - queue: myqueue-items3
+        x-azure-settings:
+          name: message # Specifies which name is available on `context`
+          direction: out
+          connection: AzureWebJobsStorage
+      - http: true
+        x-azure-settings:
+          direction: out
+
+  # timerTrigger_fn1.handle function will be triggered every 10 seconds and it will write log.
+  timerTrigger_fn1:
+    handler: src/handlers/timer/timerTrigger_fn1.printMessage
     events:
       - timer: true
         x-azure-settings:
           name: myTimer
           schedule: "*/10 * * * * *" #<string>, cron expression to run on
 
-  # timer2.handle function will be triggered every 5 seconds and it will write log.
-  timer2:
-    handler: src/handlers/timer/timer2.handle
+  # timerTrigger_fn2.handle function will be triggered every 5 seconds and it will write log.
+  timerTrigger_fn2:
+    handler: src/handlers/timer/timerTrigger_fn2.handle
     events:
       - timer: true
         x-azure-settings:
           name: timerObj #<string>, default - "myTimer", specifies which name is available on `context.bindings`
           schedule: 0 */5 * * * * #<string>, cron expression to run on
 
-  # When a file comes to samples-workitems/ folder, storageBlob1.handle function will be triggered and it will write log.
-  storageBlob1:
-    handler: src/handlers/storage/storageBlob1.handle
+  # timerTriggerToStorageQueue_fn.handle function will be triggered every 5 seconds and it will write log.
+  timerTriggerToStorageQueue_fn:
+    handler: src/handlers/timer/timerTriggerToStorageQueue_fn.handle
+    events:
+      - timer: true
+        x-azure-settings:
+          name: timerObj #<string>, default - "myTimer", specifies which name is available on `context.bindings`
+          schedule: 0 */5 * * * * #<string>, cron expression to run on
+      - queue: myqueue-items4
+        x-azure-settings:
+          name: message # Specifies which name is available on `context`
+          direction: out
+          connection: AzureWebJobsStorage
+
+  # timerTriggerToStorageTable_fn.handle function will be triggered every 5 seconds and it will write log.
+  timerTriggerToStorageTable_fn:
+    handler: src/handlers/timer/timerTriggerToStorageTable_fn.handle
+    events:
+      - timer: true
+        x-azure-settings:
+          name: timerObj #<string>, default - "myTimer", specifies which name is available on `context.bindings`
+          schedule: "*/50 * * * * *" #<string>, cron expression to run on
+      - table: true
+        x-azure-settings:
+          name: personEntity
+          tableName: Person
+          direction: out
+          connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
+
+  # When a file comes to samples-workitems/ folder, storageBlobTrigger_fn1.handle function will be triggered and it will write log.
+  storageBlobTrigger_fn1:
+    handler: src/handlers/storage/storageBlobTrigger_fn1.handle
     events:
       - blob: true
         x-azure-settings:
@@ -269,7 +455,6 @@ functions:
           name: image # Specifies which name is available on `context`
           path: testcontainername/{date}-{filetype}.csv # for more Blob name patterns infer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=csharp
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
-
 
   # When a message comes to myqueue-items queue, storageQueue1.handle function will be triggered and it will write log.
   storageQueue1:
