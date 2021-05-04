@@ -16,6 +16,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
 - [Getting started](#getting-started)
     - [Pre-requisites](#pre-requisites)
     - [Install Npm Packages](#install-npm-packages)
+    - [Install or Update Serverless Framework](#install-or-update-serverless-framework)
     - [Setup Microsoft Azure CLI](#setup-microsoft-azure-cli)
     - [Setup Microsoft Azure Functions Core Tools CLI](#setup-microsoft-azure-functions-core-tools-cli)
     - [Setup Microsoft Azure Emulator](#setup-microsoft-azure-emulator)
@@ -36,6 +37,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Get Summary of Deployed Azure Function App](#get-summary-of-deployed-azure-function-app)
     - [Cleanup serverless.yml](#cleanup-serverless.yml)
     - [Creating or Removing Azure Functions](#creating-or-removing-azure-functions)
+    - [Creating new Serverless Framework Project](#creating-new-serverless-framework-project)
 - [Microsoft Azure CLI](#microsoft-azure-cli)
     - [Login to Azure](#login-to-azure)
     - [List All Azure Subscriptions](#list-all-azure-subscriptions)
@@ -75,6 +77,18 @@ npm install
 # or
 
 yarn install
+```
+
+<br/>
+
+## Install or Update Serverless Framework
+
+```shell
+# Install
+npm install -g serverless
+
+# Update
+npm update -g serverless
 ```
 
 <br/>
@@ -160,6 +174,14 @@ If you want to just start development locally, then run the following code. This
 
 ```shell
 npm run dev
+
+# or
+
+npm run dev2
+
+# or
+
+npm run dev3
 ```
 
 ![Image19](/images/image19.png)
@@ -293,6 +315,12 @@ Now we should see deployed Resource Group in Azure Resouce groups
 # Serverless CLI
 Refer to [Serverless docs](https://www.serverless.com/framework/docs/providers/azure/cli-reference/deploy-list/) for more information.
 
+If you don't want to use `npx sls`, then install `Serverless Framework` globally with the following command.
+
+```shell
+npm install -g serverless
+```
+
 ## Deploy Azure Functions
 
 ```shell
@@ -418,6 +446,19 @@ npx sls func add --name testFunc1
 
 ```shell
 npx sls func remove --name testFunc1
+```
+
+## Creating new Serverless Framework Project
+
+If you want to see project template types, then run the following command.
+```shell
+sls create --help
+```
+
+![Image21](/images/image21.png)
+
+```shell
+sls create -t azure-nodejs-typescript
 ```
 
 # Microsoft Azure CLI

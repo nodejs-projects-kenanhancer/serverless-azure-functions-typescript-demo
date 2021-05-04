@@ -22,6 +22,7 @@ provider:
   # tenantId:
 
   environment: # these will be created as application settings
+    SERVERLESS_STAGE: ${self:provider.stage}
     VARIABLE_FOO: "HELLO WORLD"
     FIRST_NAME: "KENAN"
     LAST_NAME: "HANCER"
@@ -559,7 +560,6 @@ functions:
           rowKey: "FirstName_{queueTrigger}"
           direction: in
           connection: AzureWebJobsStorage # App Setting/environment variable which contains Storage Account Connection String
-
 
 
   # eventhub:
