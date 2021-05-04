@@ -46,6 +46,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Create Resource Group](#create-resource-group)
     - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
     - [List Storage Account](#list-storage-account)
+    - [List Storage Account](#list-storage-account)
 - [Microsoft Azure Functions Core Tools CLI](#microsoft-azure-functions-core-tools-cli)
     - [Create Local Functions Project](#create-local-functions-project)
     - [Create New Function in Project](#create-new-function-in-project)
@@ -524,6 +525,25 @@ az  storage account create --name azuresdkdemo --resource-group azure-sdk-demo -
 ```shell
 az storage account list --resource-group azure-sdk-demo --output=table
 ```
+
+## Send Event to EventGrid Topic
+
+- `<topic name>` should be `EventGrid` name
+- `<resource group name>` should be Resouce group field value in `EventGrid`
+
+```shell
+$ endpoint=$(az eventgrid topic show --name <topic name> -g <resource group name> --query "endpoint" --output tsv)
+```
+
+```shell
+$ key=$(az eventgrid topic key list --name <topic name> -g <resource group name> --query "key1" --output tsv)
+
+# example event object
+$ event='[ {"id": "'"$RANDOM"'", "eventType": "recordInserted", "subject": "myapp/vehicles/motorcycles", "eventTime": "'`date +%Y-%m-%dT%H:%M:%S%z`'", "data":{ "make": "Ducati", "model": "Monster"},"dataVersion": "1.0"} ]'
+
+$ curl -X POST -H "aeg-sas-key: $key" -d "$event" $endpoint
+```
+
 
 # Microsoft Azure Functions Core Tools CLI
 
