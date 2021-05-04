@@ -46,7 +46,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Create Resource Group](#create-resource-group)
     - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
     - [List Storage Account](#list-storage-account)
-    - [List Storage Account](#list-storage-account)
+    - [Send Event to EventGrid Topic](#send-event-to-eventgrid-topic)
 - [Microsoft Azure Functions Core Tools CLI](#microsoft-azure-functions-core-tools-cli)
     - [Create Local Functions Project](#create-local-functions-project)
     - [Create New Function in Project](#create-new-function-in-project)
