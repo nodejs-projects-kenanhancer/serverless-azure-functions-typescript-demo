@@ -13,6 +13,8 @@ const printMessage: AzureFunction = function (context: Context, myTimer: any): v
     }
     
     context.log('Timer1 trigger function ran!', timeStamp);
+
+    context.done();
 };
 
 export { printMessage };
