@@ -12,15 +12,18 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
 
 <br/>
 
+- [Links](#links)
 - [Getting started](#getting-started)
     - [Pre-requisites](#pre-requisites)
     - [Install Npm Packages](#install-npm-packages)
     - [Setup Microsoft Azure CLI](#setup-microsoft-azure-cli)
+    - [Setup Microsoft Azure Functions Core Tools CLI](#setup-microsoft-azure-functions-core-tools-cli)
     - [Setup Microsoft Azure Emulator](#setup-microsoft-azure-emulator)
     - [Setup Microsoft Azure Storage Explorer](#setup-microsoft-azure-storage-explorer)
 - [Running and debugging code locally](#running-and-debugging-code-locally)
-- [Testing Azure Http Function Locally](#testing-azure-http-function-locally)
-- [Testing Deployed Azure Http Function](#testing-deployed-azure-http-function)
+- [Testing Azure HTTP and Webhook Triggered Functions Locally](#testing-azure-http-and-webhook-triggered-functions-locally)
+- [Testing Azure Non-HTTP Triggered Functions Locally](#testing-azure-non-http-triggered-functions-locally)
+- [Testing Deployed Azure HTTP and Webhook Triggered Functions](#testing-deployed-azure-http-and-webhook-triggered-functions)
 - [Azure Deployment Steps](#azure-deployment-steps)
     - [Login to Azure](#login-to-azure)
     - [Deploy to Azure](#deploy-to-azure)
@@ -33,12 +36,24 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Get Summary of Deployed Azure Function App](#get-summary-of-deployed-azure-function-app)
     - [Cleanup serverless.yml](#cleanup-serverless.yml)
     - [Creating or Removing Azure Functions](#creating-or-removing-azure-functions)
-- [Azure CLI](#azure-cli)
+- [Microsoft Azure CLI](#microsoft-azure-cli)
     - [Login to Azure](#login-to-azure)
     - [List All Azure Subscriptions](#list-all-azure-subscriptions)
     - [Set Azure Subscription](#set-azure-subscription)
     - [List All Azure Regions](#list-all-azure-regions)
+    - [Create Resource Group](#create-resource-group)
+    - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
+    - [List Storage Account](#list-storage-account)
+- [Microsoft Azure Functions Core Tools CLI](#microsoft-azure-functions-core-tools-cli)
+    - [Create Local Functions Project](#create-local-functions-project)
+    - [Create New Function in Project](#create-new-function-in-project)
+    - [Run Function Locally](#run-function-locally)
+    - [Deploy Project Files](#deploy-project-files)
 
+
+# Links
+
+- [Azure SDK for JavaScript](https://docs.microsoft.com/en-us/javascript/api/overview/azure/?view=azure-node-latest)
 
 # Getting started
 
@@ -71,6 +86,20 @@ If you don't have [Microsoft Azure CLI](https://docs.microsoft.com/en-us/cli/azu
 Install `Microsoft Azure CLI` on **macOS**
 ```shell
 brew update && brew install azure-cli
+```
+
+<br/>
+
+## Setup Microsoft Azure Functions Core Tools CLI
+
+If you don't have [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) in your local, install it from [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash)
+
+Install `Setup Microsoft Azure Functions Core Tools CLI` on **macOS**
+```shell
+brew tap azure/functions
+brew install azure-functions-core-tools@3
+# if upgrading on a machine that has 2.x installed
+brew link --overwrite azure-functions-core-tools@3
 ```
 
 <br/>
@@ -108,8 +137,14 @@ npx sls offline
 or
 
 run [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Ccsharp%2Cbash) directly.
+
 ```shell
 func host start
+
+# or
+
+# --port, -p	The local port to listen on. Default value: 7071
+func host start --port 7071
 ```
 
 ![Image7](/images/image7.png)
@@ -140,7 +175,7 @@ npm run dev
 
 
 
-# Testing Azure Http Function Locally
+# Testing Azure HTTP and Webhook Triggered Functions Locally
 
 Use one of the following commands to call `Azure Http Function` locally, and `--port` argument should be updated due to value of `LocalHttpPort` field in `local.settings.json` file.
 
@@ -151,13 +186,41 @@ npx sls invoke local --port 7071 --function hello --data '{\"name\":\"kenan\"}'
 ![Image13](/images/image13.png)
 
 Likewise, `curl` port value should be updated as well.
+
+Syntax of HTTP and Webhook
+```shell
+http://localhost:{port}/api/{function_name}
+```
+
 ```shell
 curl http://localhost:7071/api/hello?name=kenan
 ```
 
+```shell
+curl --get http://localhost:7071/api/hello?name=Azure%20Rocks
+```
+
+```shell
+curl --request POST http://localhost:7071/api/hello --data '{"name":"Azure Rocks"}'
+```
+
+```shell
+curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/api/hello
+```
+
 ![Image14](/images/image14.png)
 
-# Testing Deployed Azure Http Function
+# Testing Azure Non-HTTP Triggered Functions Locally
+Syntax of Non-HTTP 
+```shell
+http://localhost:{port}/admin/functions/{function_name}
+```
+
+```shell
+curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/admin/functions/QueueTrigger
+```
+
+# Testing Deployed Azure HTTP and Webhook Triggered Functions
 
 just without the local and port options.
 
@@ -357,7 +420,7 @@ npx sls func add --name testFunc1
 npx sls func remove --name testFunc1
 ```
 
-# Azure CLI
+# Microsoft Azure CLI
 
 ## Login to Azure
 
@@ -373,6 +436,10 @@ az login --use-device-code
 
 ```shell
 az account list
+
+# or
+
+az account list --output=table
 ```
 
 ## Set Azure Subscription
@@ -388,3 +455,80 @@ az account list-locations -o table
 ```
 
 ![Image17](/images/image17.png)
+
+## List All Azure Runtimes
+
+```shell
+az webapp list-runtimes
+```
+
+![Image20](/images/image20.png)
+
+## Create Resource Group
+
+```shell
+az group create --name azure-sdk-demo --location westus
+
+az group create --name AzureFunctionsQuickstart-rg --location westeurope
+```
+
+## Create Storage Account under Resource Group
+
+```shell
+az  storage account create --name azuresdkdemo --resource-group azure-sdk-demo --location westus
+```
+
+## List Storage Account
+
+```shell
+az storage account list --resource-group azure-sdk-demo --output=table
+```
+
+# Microsoft Azure Functions Core Tools CLI
+
+## Create Local Functions Project
+
+refer to [Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) for more details
+
+```shell
+func init MyFunctionProj
+
+# TypeScript
+func init LocalFunctionProj --typescript
+
+# JavaScript
+func init LocalFunctionProj --javascript
+```
+
+## Create New Function in Project
+
+```shell
+func new
+
+# HTTP Triggered Function
+func new --name HttpExample --template "HTTP trigger" --authlevel "anonymous"
+```
+
+## Run Function Locally
+
+```shell
+func start
+
+# or
+
+func host start
+
+# or with port number
+
+func host start --port 7071
+
+# or
+
+func start --port 7071
+```
+
+## Deploy Project Files
+
+```shell
+func azure functionapp publish <FunctionAppName>
+```
