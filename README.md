@@ -57,6 +57,8 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
 # Links
 
 - [Azure SDK for JavaScript](https://docs.microsoft.com/en-us/javascript/api/overview/azure/?view=azure-node-latest)
+- [Serverless Framework Documents](https://serverless.com/framework/docs/providers/azure/guide/intro/)
+- [Tutorial Repository](https://github.com/nodejs-projects-kenanhancer/serverless-azure-functions-typescript-demo)
 
 # Getting started
 
