@@ -198,7 +198,20 @@ npm run dev3
     1. `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"` 
     1. `"AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"`
 
+<br/>
 
+## Domains
+
+dev and prod environments should be updated.
+
+| Env                                    | Url                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| local for HTTP triggered functions     | [http://localhost:7071/api](http://localhost:7071/api)                           |
+| local for Non-HTTP triggered functions | [http://localhost:7071/admin/functions](http://localhost:7071/admin/functions)   |
+| dev                                    | [http://localhost:7071/api](http://localhost:7071/api)                           |
+| prod                                   | [http://localhost:7071/api](http://localhost:7071/api)                           |
+
+<br/>
 
 # Testing Azure HTTP and Webhook Triggered Functions Locally
 
