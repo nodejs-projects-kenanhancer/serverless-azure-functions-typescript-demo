@@ -172,7 +172,10 @@ Syntax should be as below;
 {ngrok https url}/runtime/webhooks/EventGrid?functionName={EventGrid Function Name}
 ```
 
-so i used the following url in my case.
+So i used the following url in my case. I just copy `ngrok` url from the running `ngrok` process in my local
+
+- **ngrok url:** https://1770a1713d5b.ngrok.io
+- **event grid function name:** eventGridTrigger_fn1
 
 ```shell
 https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridTrigger_fn1
