@@ -1,0 +1,135 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storagePrefix": {
+            "type": "string",
+            "defaultValue": "storage",
+            "minLength": 3,
+            "maxLength": 11,
+            "metadata": {
+                "description": "Storage Account Name Prefix"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location of resource"
+            }
+        },
+        "topics_eventgrid1_name": {
+            "type": "string"
+        },
+        "topics_subscription_broker_name": {
+            "type": "string",
+            "defaultValue": "broker1"
+        },
+        "queue_broker1_name": {
+            "type": "string",
+            "defaultValue": "queuebroker1",
+            "metadata": {
+                "description": "Provide a name for the Event Grid subscription."
+            }
+        },
+        "inputSchema": {
+            "type": "string",
+            "defaultValue": "EventGridSchema"
+        },
+        "tags": {
+            "type": "object"
+        },
+        "identity": {
+            "type": "object"
+        },
+        "evenetGridSku": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "Premium"
+            ]
+        },
+        "storageSku": {
+            "type": "string",
+            "defaultValue": "Standard_RAGRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Standard_ZRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "Standard_GZRS",
+                "Standard_RAGZRS"
+            ]
+        },
+        "storageSkuTier": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Premium",
+                "Standard"
+            ]
+        }
+    },
+    "functions": [],
+    "variables": {
+        "queue_broker1_full_name": "[concat(parameters('storageAccountName'), '/default/', parameters('queue_broker1_name'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.EventGrid/topics",
+            "apiVersion": "2020-10-15-preview",
+            "name": "[parameters('topics_eventgrid1_name')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "sku": {
+                "name": "[parameters('evenetGridSku')]"
+            },
+            "kind": "Azure",
+            "identity": "[parameters('identity')]",
+            "properties": {
+                "inputSchema": "[parameters('inputSchema')]",
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+            "apiVersion": "2021-01-01",
+            "name": "[variables('queue_broker1_full_name')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "properties": {
+                "metadata": {}
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/eventSubscriptions",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('topics_subscription_broker_name')]",
+            "scope": "[format('Microsoft.EventGrid/topics/{0}', parameters('topics_eventgrid1_name'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                "[resourceId('Microsoft.EventGrid/topics/', parameters('topics_eventgrid1_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "endpointType": "StorageQueue",
+                    "properties": {
+                        "queueName": "[parameters('queue_broker1_name')]",
+                        "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    }
+                },
+                "eventDeliverySchema": "EventGridSchema"
+            }
+        }
+    ],
+    "outputs": {
+        "storageEndpoint": {
+            "type": "object",
+            "value": "[reference(parameters('storageAccountName')).primaryEndpoints]"
+        }
+    }
+}

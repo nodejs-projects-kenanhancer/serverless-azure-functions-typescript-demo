@@ -21,6 +21,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Setup Microsoft Azure Functions Core Tools CLI](#setup-microsoft-azure-functions-core-tools-cli)
     - [Setup Microsoft Azure Emulator](#setup-microsoft-azure-emulator)
     - [Setup Microsoft Azure Storage Explorer](#setup-microsoft-azure-storage-explorer)
+    - [Setup ngrok](#setup-ngrok)
 - [Running and debugging code locally](#running-and-debugging-code-locally)
 - [Testing Azure HTTP and Webhook Triggered Functions Locally](#testing-azure-http-and-webhook-triggered-functions-locally)
 - [Testing Azure Non-HTTP Triggered Functions Locally](#testing-azure-non-http-triggered-functions-locally)
@@ -41,12 +42,15 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
 - [Microsoft Azure CLI](#microsoft-azure-cli)
     - [Login to Azure](#login-to-azure)
     - [List All Azure Subscriptions](#list-all-azure-subscriptions)
+    - [Show Current Azure Subscription](#show-current-azure-subscription)
     - [Set Azure Subscription](#set-azure-subscription)
     - [List All Azure Regions](#list-all-azure-regions)
     - [Create Resource Group](#create-resource-group)
+    - [Deploy ARM Template](#deploy-arm-template)
     - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
     - [List Storage Account](#list-storage-account)
     - [Send Event to EventGrid Topic](#send-event-to-eventgrid-topic)
+    - [Create Custom EventGrid Topic](#create-custom-eventgrid-topic)
 - [Microsoft Azure Functions Core Tools CLI](#microsoft-azure-functions-core-tools-cli)
     - [Create Local Functions Project](#create-local-functions-project)
     - [Create New Function in Project](#create-new-function-in-project)
@@ -109,9 +113,9 @@ brew update && brew install azure-cli
 
 ## Setup Microsoft Azure Functions Core Tools CLI
 
-If you don't have [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) in your local, install it from [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash)
+If you don't have [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) in your local, download and install it from [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash)
 
-Install `Setup Microsoft Azure Functions Core Tools CLI` on **macOS**
+Install `Microsoft Azure Functions Core Tools CLI` on **macOS**
 ```shell
 brew tap azure/functions
 brew install azure-functions-core-tools@3
@@ -122,18 +126,38 @@ brew link --overwrite azure-functions-core-tools@3
 <br/>
 
 ## Setup Microsoft Azure Emulator
-This is only necessary for local development. Refer to [Azurite](https://github.com/azure/azurite) for more details.
+This is only necessary for local development. If you run `npm run dev`, below code will be runned automatically. Refer to [Azurite](https://github.com/azure/azurite) for more details.
 ```shell
 npx azurite --silent
 ```
 
 ![Image5](/images/image5.png)
 
+<br/>
 
 ## Setup Microsoft Azure Storage Explorer
-Download and install [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/). It looks like as the following screenshot.
+If you don't have [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) in your local, download and install [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/). It looks like as the following screenshot.
 
 ![Image18](/images/image18.png)
+
+Install `Microsoft Azure Storage Explorer` on **macOS**
+
+```shell
+brew install --cask microsoft-azure-storage-explorer
+```
+
+<br/>
+
+## Setup ngrok
+`ngrok` is used, in order to test and debug EventGrid messages locally. Refer to [ngrok](https://dashboard.ngrok.com/get-started/setup) for more details.
+
+Port 7071 should be updated due to value of `LocalHttpPort` field in `local.settings.json` file.
+
+```shell
+npx ngrok http -host-header=localhost 7071
+```
+
+![Image22](/images/image22.png)
 
 <br/>
 
@@ -295,8 +319,9 @@ az login --use-device-code
 then run the following commands.
 
 ```shell
-az account list # list all subscriptions
+az account list # Get a list of subscriptions for the logged in account.
 az account set --subscription <SUBSCRIPTION_ID> # choose the one you want
+az account show # Get the details of a subscription.
 ```
 
 then run below shell script to create `.env.servicePrincipal` file with new Azure credential tokens in project root folder.
@@ -499,6 +524,12 @@ az account list
 az account list --output=table
 ```
 
+## Show Current Azure Subscription
+
+```shell
+az account show
+```
+
 ## Set Azure Subscription
 
 ```shell
@@ -529,6 +560,71 @@ az group create --name azure-sdk-demo --location westus
 az group create --name AzureFunctionsQuickstart-rg --location westeurope
 ```
 
+## Deploy ARM Template
+
+**`azuredeploy.json`**
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage Account Name"
+            },
+            "minLength": 3,
+            "maxLength": 24
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "tags": {
+                "displayName": "storageaccount1"
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            }
+        }
+    ],
+    "outputs": {}
+}
+```
+
+**`azuredeploy.parameters.json`**
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "value": "storageaccount1"
+        }
+    }
+}
+```
+
+```shell
+az group create --name arm-vscode --location eastus
+
+az deployment group create --resource-group arm-vscode --template-file azuredeploy.json --parameters azuredeploy.parameters.json
+```
+
+You can cleanup resource
+```shell
+az group delete --name arm-vscode
+```
+
 ## Create Storage Account under Resource Group
 
 ```shell
@@ -540,6 +636,16 @@ az  storage account create --name azuresdkdemo --resource-group azure-sdk-demo -
 ```shell
 az storage account list --resource-group azure-sdk-demo --output=table
 ```
+
+## Create Custom EventGrid Topic
+
+```shell
+topicname=<your-topic-name>
+resourcegroupname=<your-resource-group-name>
+
+az eventgrid topic create --name $topicname -l ukwest -g $resourcegroupname
+```
+
 
 ## Send Event to EventGrid Topic
 

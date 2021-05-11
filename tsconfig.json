@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     // "lib": ["es2017"],
+    "resolveJsonModule": true,
     "removeComments": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
