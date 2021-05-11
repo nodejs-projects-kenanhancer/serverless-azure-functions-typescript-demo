@@ -159,6 +159,21 @@ npx ngrok http -host-header=localhost 7071
 
 ![Image22](/images/image22.png)
 
+
+After `ngrok` is started, we should create a new `Event Subscription` in `Azure EventGrid Topics`
+
+```shell
+https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridTrigger_fn1
+```
+
+![Image23](/images/image23.png)
+
+![Image24](/images/image24.png)
+
+![Image25](/images/image25.png)
+
+![Image26](/images/image26.png)
+
 <br/>
 
 # Running and Debugging Code Locally
