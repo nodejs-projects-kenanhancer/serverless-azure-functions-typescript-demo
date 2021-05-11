@@ -172,6 +172,8 @@ https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridT
 
 ![Image25](/images/image25.png)
 
+After saving `Event Subscription`, `ngrok` application will take a request locally as shown in the following screenshot.
+
 ![Image26](/images/image26.png)
 
 <br/>
