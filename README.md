@@ -162,13 +162,21 @@ npx ngrok http -host-header=localhost 7071
 
 After `ngrok` is started, we should create a new `Event Subscription` in `Azure EventGrid Topics`
 
-```shell
-https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridTrigger_fn1
-```
-
 ![Image23](/images/image23.png)
 
 ![Image24](/images/image24.png)
+
+Syntax should be as below;
+
+```shell
+{ngrok https url}/runtime/webhooks/EventGrid?functionName={EventGrid Function Name}
+```
+
+so i used the following url in my case.
+
+```shell
+https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridTrigger_fn1
+```
 
 ![Image25](/images/image25.png)
 
