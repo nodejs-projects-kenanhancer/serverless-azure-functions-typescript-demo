@@ -2,14 +2,21 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storagePrefix": {
+        "service": {
             "type": "string",
-            "defaultValue": "storage",
-            "minLength": 3,
-            "maxLength": 11,
-            "metadata": {
-                "description": "Storage Account Name Prefix"
-            }
+            "defaultValue": "azure-functions-typescript"
+        },
+        "stage": {
+            "type": "string",
+            "defaultValue": "dev"
+        },
+        "prefix": {
+            "type": "string",
+            "defaultValue": "kenan"
+        },
+        "resourceGroupHashLength": {
+            "type": "int",
+            "defaultValue": 5
         },
         "location": {
             "type": "string",
@@ -18,29 +25,103 @@
                 "description": "Location of resource"
             }
         },
-        "topics_eventgrid1_name": {
-            "type": "string"
-        },
-        "topics_subscription_broker_name": {
+        "tenantId": {
             "type": "string",
-            "defaultValue": "broker1"
+            "defaultValue": "[subscription().tenantId]",
+            "metadata": {
+                "description": "Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet."
+            }
         },
-        "queue_broker1_name": {
+        "subscriptionId": {
             "type": "string",
-            "defaultValue": "queuebroker1",
+            "defaultValue": "[subscription().subscriptionId]"
+        },
+        "uniqueString": {
+            "type": "string",
+            "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, parameters('resourceGroupHashLength'))]"
+        },
+        "functionAppName": {
+            "type": "string",
+            "defaultValue": "[format('{0}-{1}-{2}-{3}', parameters('prefix'), parameters('location'), parameters('stage'), parameters('service'))]"
+        },
+        "functionName": {
+            "type": "string",
+            "defaultValue": "eventGridTriggerToEventGrid_fn1"
+        },
+        "appInsightsName": {
+            "type": "string",
+            "defaultValue": "[format('{0}-{1}-{2}-{3}-appinsights', parameters('prefix'), parameters('location'), parameters('stage'), parameters('uniqueString'))]"
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "[format('{0}{1}{2}{3}', parameters('prefix'), parameters('location'), parameters('stage'), parameters('uniqueString'))]"
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "defaultValue": "[format('{0}-rg',parameters('functionAppName'))]"
+        },
+        "eventGridName": {
+            "type": "string",
+            "defaultValue": "[format('{0}{1}-eventgrid', parameters('prefix'), parameters('uniqueString'))]"
+        },
+        "keyVaultName": {
+            "type": "string",
+            "defaultValue": "[format('{0}{1}-keyvault', parameters('prefix'), parameters('uniqueString'))]"
+        },
+        "topics_subscription_broker_functionapp_name": {
+            "type": "string",
+            "defaultValue": "topic-subscription-functionapp"
+        },
+        "topics_subscription_broker1_queue_name": {
+            "type": "string",
+            "defaultValue": "topic-subscription-queue",
             "metadata": {
                 "description": "Provide a name for the Event Grid subscription."
             }
+        },
+        "usernameDevSecretName": {
+            "type": "string",
+            "defaultValue": "UsernameDev"
+        },
+        "usernameDevSecretValue": {
+            "type": "string",
+            "defaultValue": "kenanhancer"
+        },
+        "passwordDevSecretName": {
+            "type": "string",
+            "defaultValue": "PasswordDev"
+        },
+        "PasswordDevSecretValue": {
+            "type": "string",
+            "defaultValue": "123456"
+        },
+        "downstreamBaseUrl": {
+            "type": "string",
+            "defaultValue": "https://uk.testkenan.com/api"
+        },
+        "authUrl": {
+            "type": "string",
+            "defaultValue": "[format('{0}/token', parameters('downstreamBaseUrl'))]"
+        },
+        "greetingServiceUrl": {
+            "type": "string",
+            "defaultValue": "[format('{0}/v1/greeting/sayhello', parameters('downstreamBaseUrl'))]"
         },
         "inputSchema": {
             "type": "string",
             "defaultValue": "EventGridSchema"
         },
         "tags": {
-            "type": "object"
+            "type": "object",
+            "defaultValue": {
+                "displayName": "AzureTestDeployment"
+            }
         },
         "identity": {
-            "type": "object"
+            "type": "object",
+            "defaultValue": {
+                "type": "None"
+            }
         },
         "evenetGridSku": {
             "type": "string",
@@ -75,13 +156,14 @@
     },
     "functions": [],
     "variables": {
-        "queue_broker1_full_name": "[concat(parameters('storageAccountName'), '/default/', parameters('queue_broker1_name'))]"
+        "queue_broker1_full_name": "[concat(parameters('storageAccountName'), '/default/', parameters('topics_subscription_broker1_queue_name'))]",
+        "functionAppResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
     },
     "resources": [
         {
             "type": "Microsoft.EventGrid/topics",
             "apiVersion": "2020-10-15-preview",
-            "name": "[parameters('topics_eventgrid1_name')]",
+            "name": "[parameters('eventGridName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
             "sku": {
@@ -98,9 +180,6 @@
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2021-01-01",
             "name": "[variables('queue_broker1_full_name')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-            ],
             "properties": {
                 "metadata": {}
             }
@@ -108,28 +187,120 @@
         {
             "type": "Microsoft.EventGrid/eventSubscriptions",
             "apiVersion": "2020-06-01",
-            "name": "[parameters('topics_subscription_broker_name')]",
-            "scope": "[format('Microsoft.EventGrid/topics/{0}', parameters('topics_eventgrid1_name'))]",
+            "name": "[parameters('topics_subscription_broker_functionapp_name')]",
+            "scope": "[format('Microsoft.EventGrid/topics/{0}', parameters('eventGridName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-                "[resourceId('Microsoft.EventGrid/topics/', parameters('topics_eventgrid1_name'))]"
+                "[resourceId('Microsoft.EventGrid/topics/', parameters('eventGridName'))]"
             ],
             "properties": {
                 "destination": {
                     "endpointType": "StorageQueue",
                     "properties": {
-                        "queueName": "[parameters('queue_broker1_name')]",
+                        "queueName": "[parameters('topics_subscription_broker1_queue_name')]",
                         "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
                     }
                 },
+                "filter": {
+                    "includedEventTypes": [
+                        "PublishOffer"
+                    ]
+                },
                 "eventDeliverySchema": "EventGridSchema"
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/eventSubscriptions",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('topics_subscription_broker1_queue_name')]",
+            "scope": "[format('Microsoft.EventGrid/topics/{0}', parameters('eventGridName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics/', parameters('eventGridName'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "endpointType": "AzureFunction",
+                    "properties": {
+                        "resourceId": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Web/sites/{2}/functions/{3}', parameters('subscriptionId'), parameters('resourceGroupName'), parameters('functionAppName'), parameters('functionName'))]"
+                    }
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "PublishSubmission"
+                    ]
+                },
+                "eventDeliverySchema": "EventGridSchema"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[parameters('keyVaultName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "[parameters('tenantId')]",
+                "accessPolicies": [
+                    {
+                        "tenantId": "[reference(variables('functionAppResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                        "objectId": "[reference(variables('functionAppResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [ "get", "list" ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": false,
+                "softDeleteRetentionInDays": 90
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[concat(parameters('keyVaultName'), '/', parameters('usernameDevSecretName'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('usernameDevSecretValue')]",
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[concat(parameters('keyVaultName'), '/', parameters('passwordDevSecretName'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('PasswordDevSecretValue')]",
+                "attributes": {
+                    "enabled": true
+                }
             }
         }
     ],
     "outputs": {
         "storageEndpoint": {
             "type": "object",
-            "value": "[reference(parameters('storageAccountName')).primaryEndpoints]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints]"
+        },
+        "topicsEventGrid1Url": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.EventGrid/topics', parameters('eventGridName'))).endpoint]"
+        },
+        "topicsEventGrid1Key": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.EventGrid/topics', parameters('eventGridName')), '2020-10-15-preview').key1]"
         }
     }
 }

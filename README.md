@@ -46,6 +46,8 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Set Azure Subscription](#set-azure-subscription)
     - [List All Azure Regions](#list-all-azure-regions)
     - [Create Resource Group](#create-resource-group)
+    - [Create Key Vault](#create-key-vault)
+    - [Retrieve Secret from Key Vault](#retrieve-secret-from-key-vault)
     - [Deploy ARM Template](#deploy-arm-template)
     - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
     - [List Storage Account](#list-storage-account)
@@ -126,7 +128,7 @@ brew link --overwrite azure-functions-core-tools@3
 <br/>
 
 ## Setup Microsoft Azure Emulator
-This is only necessary for local development. If you run `npm run dev`, below code will be runned automatically. Refer to [Azurite](https://github.com/azure/azurite) for more details.
+This is necessary for local development. If you run `npm start`, below code will be runned automatically. Refer to [Azurite](https://github.com/azure/azurite) for more details.
 ```shell
 npx azurite --silent
 ```
@@ -187,6 +189,20 @@ After saving `Event Subscription`, `ngrok` application will take a request local
 
 ![Image26](/images/image26.png)
 
+If we need to send message to EventGrid, then update `TopicEndpointUri` and `TopicKeySetting` fields in `local.settings.json` file. Those two fields 
+
+In order to take `TopicEndpointUri` value, run the following command then copy and paste to `TopicEndpointUri` field in `local.settings.json` file.
+
+```shell
+az eventgrid topic show --name <topic name> -g <resource group name> --query "endpoint" --output tsv
+```
+
+In order to take `TopicKeySetting` value, run the following command then copy and paste to `TopicKeySetting` field in `local.settings.json` file.
+
+```shell
+az eventgrid topic key list --name <topic name> -g <resource group name> --query "key1" --output tsv
+```
+
 <br/>
 
 # Running and Debugging Code Locally
@@ -219,28 +235,13 @@ func host start --port 7071
 ![Image7](/images/image7.png)
 
 
-If you want to `npm start` directly, you should run `npx azurite` in other terminall firstly, otherwise project will not start. so, you can use the following code.
+or just use below code.
 
 ```shell
-npx azurite --silent & npm start
-```
-
-If you want to just start development locally, then run the following code. This code will start `Microsoft Azure Emulator` firstly then host `Azure Functions` locally.
-
-```shell
-npm run dev
-
-# or
-
-npm run dev2
-
-# or
-
-npm run dev3
+npm start
 ```
 
 ![Image19](/images/image19.png)
-
 
 
 - If there are more than one project working with `Microsoft Azure Emulator`, than change value of `LocalHttpPort` field in `local.settings.json` file
@@ -399,13 +400,13 @@ $ npx sls deploy --region "North Central US"
 
 $ npx sls deploy --region "West Europe"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "dev"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "dev"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "test"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "test"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "prod"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "prod"
 ```
 
 ## Remove Deployed Azure Function App
@@ -588,6 +589,28 @@ az group create --name azure-sdk-demo --location westus
 az group create --name AzureFunctionsQuickstart-rg --location westeurope
 ```
 
+## Create Key Vault
+
+```shell
+az keyvault create --name "<your-unique-keyvault-name>" --resource-group "<your-resource-group-name>" --location "ukwest"
+
+az keyvault create --name "kenankeyvault1" --resource-group "kenan-ukw-dev-greeting-api-rg" --location "ukwest"
+
+# or 
+
+az keyvault create --name kenankeyvault2 --resource-group kenan-ukw-dev-greeting-api-rg --location ukwest
+```
+
+## Retrieve Secret from Key Vault
+
+```shell
+az keyvault secret show --name "ExamplePassword" --vault-name "<your-unique-keyvault-name>" --query "value"
+
+az keyvault secret show --name "ExampleUsername" --vault-name "kenankeyvault1" --query "value"
+
+az keyvault secret show --name "ExamplePassword" --vault-name "kenankeyvault1" --query "value"
+```
+
 ## Deploy ARM Template
 
 **`azuredeploy.json`**
@@ -677,22 +700,29 @@ az eventgrid topic create --name $topicname -l ukwest -g $resourcegroupname
 
 ## Send Event to EventGrid Topic
 
-- `<topic name>` should be `EventGrid` name
-- `<resource group name>` should be Resouce group field value in `EventGrid`
+- `topicname` should be `EventGrid` name
+- `resourceGroupName` should be Resouce group field value in `EventGrid`
 
 ```shell
-$ endpoint=$(az eventgrid topic show --name <topic name> -g <resource group name> --query "endpoint" --output tsv)
+resourceGroupName="kenan-ukw-dev-azure-functions-typescript-rg"
+topicname="eventgridbroker"
+
+endpoint=$(az eventgrid topic show --name $topicname -g $resourceGroupName --query "endpoint" --output tsv)
+
+key=$(az eventgrid topic key list --name $topicname -g $resourceGroupName --query "key1" --output tsv)
+
+data='"data":{"make":"Ducati","model":"Monster","message":{"insured_name":"CharlieHorton"}}'
+
+event='[ {"id": "2f6b1fc2-12cd-4f0e-98c2-899648eae4b9", "eventType": "PublishSubmission", "subject": "PublishOffer", "eventTime": "2021-05-05T09:06:47.575711Z", "dataVersion": "1.0", '$data'} ]'
+
+curl -X POST -H "aeg-sas-key: $key" -d "$event" $endpoint
 ```
+
+or
 
 ```shell
-$ key=$(az eventgrid topic key list --name <topic name> -g <resource group name> --query "key1" --output tsv)
-
-# example event object
-$ event='[ {"id": "'"$RANDOM"'", "eventType": "recordInserted", "subject": "myapp/vehicles/motorcycles", "eventTime": "'`date +%Y-%m-%dT%H:%M:%S%z`'", "data":{ "make": "Ducati", "model": "Monster"},"dataVersion": "1.0"} ]'
-
-$ curl -X POST -H "aeg-sas-key: $key" -d "$event" $endpoint
+npm run sendEventToEventGridTopic
 ```
-
 
 # Microsoft Azure Functions Core Tools CLI
 

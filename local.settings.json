@@ -4,7 +4,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;",
     "TopicEndpointUri": "https://eventgrid1.ukwest-1.eventgrid.azure.net/api/events",
-    "TopicKeySetting": "+7C8TZ9JXYvL3TJ3An/hHmfMuT4eAHtT7ArPaACoZKo="
+    "TopicKeySetting": "KShpjrzCGSeFy7bvzZa98dqOaCTGnmwgYRUrr340VBI="
   },
   "Host": {
     "LocalHttpPort": 7071

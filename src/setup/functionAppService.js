@@ -323,6 +323,7 @@ var FunctionAppService = /** @class */ (function (_super) {
             deployment.template.parameters = { ...deployment.template.parameters, ...armDeployment.template.parameters };
             deployment.template.resources = [...deployment.template.resources, ...armDeployment.template.resources];
             deployment.template.variables = { ...deployment.template.variables, ...armDeployment.template.variables };
+            deployment.template.outputs = { ...deployment.template.outputs, ...armDeployment.template.outputs };
             deployment.parameters = { ...deployment.parameters, ...armDeployment.parameters };
         }
 

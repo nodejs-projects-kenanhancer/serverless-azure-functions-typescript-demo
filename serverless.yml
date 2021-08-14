@@ -20,35 +20,35 @@ provider:
   # os: windows  # windows is default, linux is available
   # subscriptionId: 00000000-0000-0000-0000-000000000000
   # tenantId:
-  armTemplate:
-    file: azuredeploy.json
-    # parameters: ${file(azuredeploy.parameters.json)}
-    parameters:
-      storagePrefix: 
-        value: storage
-      location: 
-        value: ukwest
-      topics_eventgrid1_name: 
-        value: eventgrid1
-      topics_subscription_broker_name:
-        value: broker1
-      queue_broker1_name:
-        value: queuebroker1
-      inputSchema: 
-        value: EventGridSchema
-      tags:
-        value:
-          displayName: AzureTestDeployment
-      identity:
-        value:
-          type: None
-      evenetGridSku: 
-        value: Basic
-      storageSku: 
-        value: Standard_LRS
-      storageSkuTier: 
-        value: Standard
 
+  # armTemplate:
+  #   file: azuredeploy.json
+  #   # parameters: ${file(azuredeploy.parameters.json)}
+  #   parameters:
+  #     storagePrefix:
+  #       value: storage
+  #     location:
+  #       value: ukwest
+  #     topics_eventgrid1_name:
+  #       value: eventgrid1
+  #     topics_subscription_broker_name:
+  #       value: broker1
+  #     queue_broker1_name:
+  #       value: queuebroker1
+  #     inputSchema:
+  #       value: EventGridSchema
+  #     tags:
+  #       value:
+  #         displayName: AzureTestDeployment
+  #     identity:
+  #       value:
+  #         type: None
+  #     evenetGridSku:
+  #       value: Basic
+  #     storageSku:
+  #       value: Standard_LRS
+  #     storageSkuTier:
+  #       value: Standard
 
   environment: # these will be created as application settings
     SERVERLESS_STAGE: ${self:provider.stage}
@@ -56,6 +56,7 @@ provider:
     FIRST_NAME: "KENAN"
     LAST_NAME: "HANCER"
     STORAGE_QUEUE6_NAME: "myqueue-items22"
+    TopicKeySetting: "[listKeys(resourceId('Microsoft.EventGrid/topics', parameters('eventGridName')), '2020-10-15-preview').key1]"
 
   # Default API Management configuration with Consumption sku(Stock-keeping-Unit)
   # apim: true
@@ -603,8 +604,9 @@ functions:
           name: messageOut # Specifies which name is available on `context`
           connection: AzureWebJobsStorage
 
-  eventGridTrigger_fn1:
-    handler: src/handlers/eventGrid/eventGridTrigger_fn1.handle
+  # When a message comes to EventGrid, eventGridTriggerToEventGrid_fn1 function will be triggered and it will send new message to EventGrid back again.
+  eventGridTriggerToEventGrid_fn1:
+    handler: src/handlers/eventGrid/eventGridTriggerToEventGrid_fn1.handle
     events:
       - eventGrid: true
         x-azure-settings:
