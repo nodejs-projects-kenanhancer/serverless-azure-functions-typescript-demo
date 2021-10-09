@@ -1,0 +1,43 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storagePrefix": {
+            "value": "storage"
+        },
+        "location": {
+            "value": "ukwest"
+        },
+        "topics_eventgrid1_name": {
+            "value": "eventgrid1"
+        },
+        "topics_subscription_broker_name": {
+            "value": "broker1"
+        },
+        "queue_broker1_name": {
+            "value": "queuebroker1"
+        },
+        "inputSchema": {
+            "value": "EventGridSchema"
+        },
+        "tags": {
+            "value": {
+                "displayName": "AzureTestDeployment"
+            }
+        },
+        "identity": {
+            "value": {
+                "type": "None"
+            }
+        },
+        "evenetGridSku": {
+            "value": "Basic"
+        },
+        "storageSku": {
+            "value": "Standard_LRS"
+        },
+        "storageSkuTier": {
+            "value": "Standard"
+        }
+    }
+}

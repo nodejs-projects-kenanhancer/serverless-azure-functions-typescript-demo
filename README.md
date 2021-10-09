@@ -21,6 +21,7 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
     - [Setup Microsoft Azure Functions Core Tools CLI](#setup-microsoft-azure-functions-core-tools-cli)
     - [Setup Microsoft Azure Emulator](#setup-microsoft-azure-emulator)
     - [Setup Microsoft Azure Storage Explorer](#setup-microsoft-azure-storage-explorer)
+    - [Setup ngrok](#setup-ngrok)
 - [Running and debugging code locally](#running-and-debugging-code-locally)
 - [Testing Azure HTTP and Webhook Triggered Functions Locally](#testing-azure-http-and-webhook-triggered-functions-locally)
 - [Testing Azure Non-HTTP Triggered Functions Locally](#testing-azure-non-http-triggered-functions-locally)
@@ -41,12 +42,17 @@ Just follow this README document to see deployed `Azure Functions` with [Serverl
 - [Microsoft Azure CLI](#microsoft-azure-cli)
     - [Login to Azure](#login-to-azure)
     - [List All Azure Subscriptions](#list-all-azure-subscriptions)
+    - [Show Current Azure Subscription](#show-current-azure-subscription)
     - [Set Azure Subscription](#set-azure-subscription)
     - [List All Azure Regions](#list-all-azure-regions)
     - [Create Resource Group](#create-resource-group)
+    - [Create Key Vault](#create-key-vault)
+    - [Retrieve Secret from Key Vault](#retrieve-secret-from-key-vault)
+    - [Deploy ARM Template](#deploy-arm-template)
     - [Create Storage Account under Resource Group](#create-storage-account-under-resource-group)
     - [List Storage Account](#list-storage-account)
     - [Send Event to EventGrid Topic](#send-event-to-eventgrid-topic)
+    - [Create Custom EventGrid Topic](#create-custom-eventgrid-topic)
 - [Microsoft Azure Functions Core Tools CLI](#microsoft-azure-functions-core-tools-cli)
     - [Create Local Functions Project](#create-local-functions-project)
     - [Create New Function in Project](#create-new-function-in-project)
@@ -109,9 +115,9 @@ brew update && brew install azure-cli
 
 ## Setup Microsoft Azure Functions Core Tools CLI
 
-If you don't have [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) in your local, install it from [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash)
+If you don't have [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash) in your local, download and install it from [Setup Microsoft Azure Functions Core Tools CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cnode%2Cbash)
 
-Install `Setup Microsoft Azure Functions Core Tools CLI` on **macOS**
+Install `Microsoft Azure Functions Core Tools CLI` on **macOS**
 ```shell
 brew tap azure/functions
 brew install azure-functions-core-tools@3
@@ -122,18 +128,80 @@ brew link --overwrite azure-functions-core-tools@3
 <br/>
 
 ## Setup Microsoft Azure Emulator
-This is only necessary for local development. Refer to [Azurite](https://github.com/azure/azurite) for more details.
+This is necessary for local development. If you run `npm start`, below code will be runned automatically. Refer to [Azurite](https://github.com/azure/azurite) for more details.
 ```shell
 npx azurite --silent
 ```
 
 ![Image5](/images/image5.png)
 
+<br/>
 
 ## Setup Microsoft Azure Storage Explorer
-Download and install [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/). It looks like as the following screenshot.
+If you don't have [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) in your local, download and install [Microsoft Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/). It looks like as the following screenshot.
 
 ![Image18](/images/image18.png)
+
+Install `Microsoft Azure Storage Explorer` on **macOS**
+
+```shell
+brew install --cask microsoft-azure-storage-explorer
+```
+
+<br/>
+
+## Setup ngrok
+`ngrok` is used, in order to test and debug EventGrid messages locally. Refer to [ngrok](https://dashboard.ngrok.com/get-started/setup) for more details.
+
+Port 7071 should be updated due to value of `LocalHttpPort` field in `local.settings.json` file.
+
+```shell
+npx ngrok http -host-header=localhost 7071
+```
+
+![Image22](/images/image22.png)
+
+
+After `ngrok` is started, we should create a new `Event Subscription` in `Azure EventGrid Topics`
+
+![Image23](/images/image23.png)
+
+![Image24](/images/image24.png)
+
+Syntax should be as below;
+
+```shell
+{ngrok https url}/runtime/webhooks/EventGrid?functionName={EventGrid Function Name}
+```
+
+So i used the following url in my case. I just copy `ngrok` url from the running `ngrok` process in my local
+
+- **ngrok url:** https://1770a1713d5b.ngrok.io
+- **event grid function name:** eventGridTrigger_fn1
+
+```shell
+https://1770a1713d5b.ngrok.io/runtime/webhooks/EventGrid?functionName=eventGridTrigger_fn1
+```
+
+![Image25](/images/image25.png)
+
+After saving `Event Subscription`, `ngrok` application will take a request locally as shown in the following screenshot.
+
+![Image26](/images/image26.png)
+
+If we need to send message to EventGrid, then update `TopicEndpointUri` and `TopicKeySetting` fields in `local.settings.json` file. Those two fields 
+
+In order to take `TopicEndpointUri` value, run the following command then copy and paste to `TopicEndpointUri` field in `local.settings.json` file.
+
+```shell
+az eventgrid topic show --name <topic name> -g <resource group name> --query "endpoint" --output tsv
+```
+
+In order to take `TopicKeySetting` value, run the following command then copy and paste to `TopicKeySetting` field in `local.settings.json` file.
+
+```shell
+az eventgrid topic key list --name <topic name> -g <resource group name> --query "key1" --output tsv
+```
 
 <br/>
 
@@ -167,28 +235,13 @@ func host start --port 7071
 ![Image7](/images/image7.png)
 
 
-If you want to `npm start` directly, you should run `npx azurite` in other terminall firstly, otherwise project will not start. so, you can use the following code.
+or just use below code.
 
 ```shell
-npx azurite --silent & npm start
-```
-
-If you want to just start development locally, then run the following code. This code will start `Microsoft Azure Emulator` firstly then host `Azure Functions` locally.
-
-```shell
-npm run dev
-
-# or
-
-npm run dev2
-
-# or
-
-npm run dev3
+npm start
 ```
 
 ![Image19](/images/image19.png)
-
 
 
 - If there are more than one project working with `Microsoft Azure Emulator`, than change value of `LocalHttpPort` field in `local.settings.json` file
@@ -198,7 +251,20 @@ npm run dev3
     1. `"AzureWebJobsStorage": "UseDevelopmentStorage=true;"` 
     1. `"AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"`
 
+<br/>
 
+## Domains
+
+dev and prod environments should be updated.
+
+| Env                                    | Url                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| local for HTTP triggered functions     | [http://localhost:7071/api](http://localhost:7071/api)                           |
+| local for Non-HTTP triggered functions | [http://localhost:7071/admin/functions](http://localhost:7071/admin/functions)   |
+| dev                                    | [http://localhost:7071/api](http://localhost:7071/api)                           |
+| prod                                   | [http://localhost:7071/api](http://localhost:7071/api)                           |
+
+<br/>
 
 # Testing Azure HTTP and Webhook Triggered Functions Locally
 
@@ -282,8 +348,9 @@ az login --use-device-code
 then run the following commands.
 
 ```shell
-az account list # list all subscriptions
+az account list # Get a list of subscriptions for the logged in account.
 az account set --subscription <SUBSCRIPTION_ID> # choose the one you want
+az account show # Get the details of a subscription.
 ```
 
 then run below shell script to create `.env.servicePrincipal` file with new Azure credential tokens in project root folder.
@@ -333,13 +400,13 @@ $ npx sls deploy --region "North Central US"
 
 $ npx sls deploy --region "West Europe"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "dev"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "dev"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "test"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "test"
 
-$ npx sls deploy --region "West Europe" --prefix "hyperionSquad" --stage "prod"
+$ npx sls deploy --region "West Europe" --prefix "kenanSquad" --stage "prod"
 ```
 
 ## Remove Deployed Azure Function App
@@ -486,6 +553,12 @@ az account list
 az account list --output=table
 ```
 
+## Show Current Azure Subscription
+
+```shell
+az account show
+```
+
 ## Set Azure Subscription
 
 ```shell
@@ -516,6 +589,93 @@ az group create --name azure-sdk-demo --location westus
 az group create --name AzureFunctionsQuickstart-rg --location westeurope
 ```
 
+## Create Key Vault
+
+```shell
+az keyvault create --name "<your-unique-keyvault-name>" --resource-group "<your-resource-group-name>" --location "ukwest"
+
+az keyvault create --name "kenankeyvault1" --resource-group "kenan-ukw-dev-greeting-api-rg" --location "ukwest"
+
+# or 
+
+az keyvault create --name kenankeyvault2 --resource-group kenan-ukw-dev-greeting-api-rg --location ukwest
+```
+
+## Retrieve Secret from Key Vault
+
+```shell
+az keyvault secret show --name "ExamplePassword" --vault-name "<your-unique-keyvault-name>" --query "value"
+
+az keyvault secret show --name "ExampleUsername" --vault-name "kenankeyvault1" --query "value"
+
+az keyvault secret show --name "ExamplePassword" --vault-name "kenankeyvault1" --query "value"
+```
+
+## Deploy ARM Template
+
+**`azuredeploy.json`**
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage Account Name"
+            },
+            "minLength": 3,
+            "maxLength": 24
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "tags": {
+                "displayName": "storageaccount1"
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            }
+        }
+    ],
+    "outputs": {}
+}
+```
+
+**`azuredeploy.parameters.json`**
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "value": "storageaccount1"
+        }
+    }
+}
+```
+
+```shell
+az group create --name arm-vscode --location eastus
+
+az deployment group create --resource-group arm-vscode --template-file azuredeploy.json --parameters azuredeploy.parameters.json
+```
+
+You can cleanup resource
+```shell
+az group delete --name arm-vscode
+```
+
 ## Create Storage Account under Resource Group
 
 ```shell
@@ -528,24 +688,41 @@ az  storage account create --name azuresdkdemo --resource-group azure-sdk-demo -
 az storage account list --resource-group azure-sdk-demo --output=table
 ```
 
+## Create Custom EventGrid Topic
+
+```shell
+topicname=<your-topic-name>
+resourcegroupname=<your-resource-group-name>
+
+az eventgrid topic create --name $topicname -l ukwest -g $resourcegroupname
+```
+
+
 ## Send Event to EventGrid Topic
 
-- `<topic name>` should be `EventGrid` name
-- `<resource group name>` should be Resouce group field value in `EventGrid`
+- `topicname` should be `EventGrid` name
+- `resourceGroupName` should be Resouce group field value in `EventGrid`
 
 ```shell
-$ endpoint=$(az eventgrid topic show --name <topic name> -g <resource group name> --query "endpoint" --output tsv)
+resourceGroupName="kenan-ukw-dev-azure-functions-typescript-rg"
+topicname="eventgridbroker"
+
+endpoint=$(az eventgrid topic show --name $topicname -g $resourceGroupName --query "endpoint" --output tsv)
+
+key=$(az eventgrid topic key list --name $topicname -g $resourceGroupName --query "key1" --output tsv)
+
+data='"data":{"make":"Ducati","model":"Monster","message":{"insured_name":"CharlieHorton"}}'
+
+event='[ {"id": "2f6b1fc2-12cd-4f0e-98c2-899648eae4b9", "eventType": "PublishSubmission", "subject": "PublishOffer", "eventTime": "2021-05-05T09:06:47.575711Z", "dataVersion": "1.0", '$data'} ]'
+
+curl -X POST -H "aeg-sas-key: $key" -d "$event" $endpoint
 ```
+
+or
 
 ```shell
-$ key=$(az eventgrid topic key list --name <topic name> -g <resource group name> --query "key1" --output tsv)
-
-# example event object
-$ event='[ {"id": "'"$RANDOM"'", "eventType": "recordInserted", "subject": "myapp/vehicles/motorcycles", "eventTime": "'`date +%Y-%m-%dT%H:%M:%S%z`'", "data":{ "make": "Ducati", "model": "Monster"},"dataVersion": "1.0"} ]'
-
-$ curl -X POST -H "aeg-sas-key: $key" -d "$event" $endpoint
+npm run sendEventToEventGridTopic
 ```
-
 
 # Microsoft Azure Functions Core Tools CLI
 
