@@ -1,4 +1,5 @@
 jobs:
-- job: Include NPM Steps
+- job: Include_NPM_Steps
+  displayName: Include NPM Steps
   steps:
   - template: ../steps/include-npm-steps.yml

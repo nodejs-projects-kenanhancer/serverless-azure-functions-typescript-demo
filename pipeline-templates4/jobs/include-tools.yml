@@ -1,4 +1,5 @@
 jobs:
-- job: Include Tools
+- job: Include_Tools
+  displayName: Include Tools
   steps:
   - template: ../steps/include-tools.yml
