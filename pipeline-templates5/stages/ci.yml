@@ -1,0 +1,6 @@
+stages:
+- stage: CI
+  jobs:
+  - template: ../jobs/include-jfrog.yml
+  - template: ../jobs/include-tools.yml
+  - template: ../jobs/include-npm-steps.yml
