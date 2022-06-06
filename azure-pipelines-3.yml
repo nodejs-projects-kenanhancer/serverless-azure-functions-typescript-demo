@@ -10,8 +10,8 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-- template: pipeline-templates3/stages/build.yaml
-- template: pipeline-templates3/stages/release.yaml
+- template: pipeline-templates3/stages/build.yml
+- template: pipeline-templates3/stages/release.yml
   # parameters:
   #     AdminPassword: $(AdminPassword)
   #     AdminTestPassword: $(AdminTestPassword)
