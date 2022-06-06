@@ -1,0 +1,7 @@
+stages:
+- stage: CD
+  jobs:
+  - job: Deploy
+    steps:
+    - script: echo I am CD Stage
+      displayName: Run a one-line script2

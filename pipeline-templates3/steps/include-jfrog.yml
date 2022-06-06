@@ -1,0 +1,34 @@
+steps:
+- task: AzureKeyVault@2
+  displayName: Fetch JFrog Secrets
+  inputs:
+    ConnectedServiceName: bla-serviceName
+    KeyVaultName: KV-TEST
+    SecretsFilter: jfrog-user, jfrog-npm-auth, jfrog-token
+- task: Docker@2
+  displayName: JFrog Artifactory Login
+  inputs:
+    containerRegistry: bla-registery
+    command: login
+    addPipelineData: false
+- task: PythonScript@0
+  displayName: Exec Jfrog
+  inputs:
+    scriptSource: inline
+    script: >-
+      import sys
+
+      import os
+
+
+      jfroguser = sys.argv[1]
+
+      npmtoken = sys.argv[2]
+
+      jfrogtoken = sys.argv[3]
+
+
+      os.system("chmod u+x scripts/*.sh")
+
+      os.system("scripts/setup_jfrog.sh " + jfroguser + " " + npmtoken + " " + jfrogtoken)
+    arguments: $(jfrog-user) $(jfrog-npm-auth) $(jfrog-token)
