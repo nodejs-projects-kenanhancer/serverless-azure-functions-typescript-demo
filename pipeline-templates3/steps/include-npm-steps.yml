@@ -1,3 +1,14 @@
 steps:
-- script: npm install
+- task: Npm@1
+  displayName: Install Application Dependencies
+  inputs:
+    workingDir: $(System.DefaultWorkingDirectory)
+    verbose: false
+# - script: npm install
 - script: npm run build
+- script: echo Validate Environment Variables
+- script: echo Unit testing
+- script: echo Integration testing
+- script: echo Publish code coverage from Unit testing
+- script: echo Finish Build
+- script: echo Finish Build
