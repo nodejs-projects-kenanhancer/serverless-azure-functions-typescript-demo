@@ -3,6 +3,6 @@ stages:
   jobs:
   - job: Build
     steps:
-    - template: include-jfrog.yml
-    - template: include-tools.yml
-    - template: include-npm-steps.yml
+    - template: ../steps/include-jfrog.yml
+    - template: ../steps/include-tools.yml
+    - template: ../steps/include-npm-steps.yml
