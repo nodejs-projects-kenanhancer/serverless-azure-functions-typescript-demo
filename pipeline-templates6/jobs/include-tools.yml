@@ -1,0 +1,6 @@
+jobs:
+- job: Include_Tools
+  displayName: Include Tools
+  dependsOn: Include_JFrog
+  steps:
+  - template: ../steps/include-tools.yml
