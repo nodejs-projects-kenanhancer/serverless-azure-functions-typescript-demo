@@ -1,0 +1,14 @@
+stages:
+- stage: DEV_SMOKE_TEST
+  displayName: DEV Smoke Test
+  jobs:
+  - job: PostSubmission_Test
+    displayName: Post Submission Test
+    steps:
+    - script: echo I am CD Stage
+      displayName: Run a one-line script2
+  - job: PostBoundOffer_Test
+    displayName: Post Bound Offer Test
+    steps:
+    - script: echo I am CD Stage
+      displayName: Run a one-line script2

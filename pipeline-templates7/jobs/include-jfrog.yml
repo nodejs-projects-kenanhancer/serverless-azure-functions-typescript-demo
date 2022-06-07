@@ -1,0 +1,5 @@
+jobs:
+- job: Include_JFrog
+  displayName: Include JFrog
+  steps:
+  - template: ../steps/include-jfrog.yml

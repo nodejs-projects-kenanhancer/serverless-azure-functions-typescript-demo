@@ -1,0 +1,28 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool: 
+  vmImage: ubuntu-latest
+
+stages:
+- template: pipeline-templates7/stages/ci.yml
+- template: pipeline-templates7/stages/cd-dev.yml
+- template: pipeline-templates7/stages/dev-smoke-test.yml
+- template: pipeline-templates7/stages/cd-uat.yml
+- template: pipeline-templates7/stages/uat-smoke-test.yml
+- template: pipeline-templates7/stages/cd-preprod.yml
+- template: pipeline-templates7/stages/preprod-smoke-test.yml
+- template: pipeline-templates7/stages/cd-prod.yml
+- template: pipeline-templates7/stages/prod-smoke-test.yml
+
+  # parameters:
+  #     AdminPassword: $(AdminPassword)
+  #     AdminTestPassword: $(AdminTestPassword)
+  #     HostingPlan: $(HostingPlan)
+  #     ServerName: $(ServerName)
+  #     WebsiteName: $(WebsiteName)

@@ -1,0 +1,7 @@
+steps:
+- task: NodeTool@0
+  displayName: Use Node version 14.x
+  inputs:
+    versionSpec: 14.x
+- task: FuncToolsInstaller@0
+  displayName: Install func tools - latest

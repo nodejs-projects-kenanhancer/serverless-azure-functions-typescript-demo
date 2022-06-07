@@ -1,0 +1,7 @@
+steps:
+- script: echo Fetch JFrog Secrets
+  displayName: Fetch JFrog Secrets
+- script: echo JFrog Artifactory Login
+  displayName: JFrog Artifactory Login
+- script: echo Exec Jfrog
+  displayName: Exec Jfrog
