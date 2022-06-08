@@ -4,8 +4,11 @@ steps:
 #   inputs:
 #     workingDir: $(System.DefaultWorkingDirectory)
 #     verbose: false
-- script: npm install
+- task: Npm@1
   displayName: Install Application Dependencies
+  inputs:
+    workingDir: $(System.DefaultWorkingDirectory)
+    verbose: false
 - script: echo Validate Environment Variables
   displayName: Validate Environment Variables
 - script: echo Unit testing

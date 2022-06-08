@@ -1,0 +1,12 @@
+steps:
+- task: Npm@1
+  displayName: Compile
+  inputs:
+    command: custom
+    workingDir: $(System.DefaultWorkingDirectory)
+    verbose: false
+    customCommand: run compile
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: subscription-service'
+  inputs:
+    ArtifactName: subscription-service
