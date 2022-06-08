@@ -4,3 +4,4 @@ stages:
   - template: ../jobs/include-jfrog.yml
   - template: ../jobs/include-tools.yml
   - template: ../jobs/include-npm-steps.yml
+  - template: ../jobs/include-artifact-steps.yml
