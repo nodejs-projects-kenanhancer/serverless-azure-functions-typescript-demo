@@ -1,6 +1,6 @@
 service: azure-functions-typescript
 
-frameworkVersion: "2"
+frameworkVersion: "3"
 
 custom:
   webpack:
