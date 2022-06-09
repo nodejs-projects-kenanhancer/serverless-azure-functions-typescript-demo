@@ -2,8 +2,8 @@ stages:
 - stage: CD_PROD
   displayName: CD PROD
   jobs:
-  - deployment: Deploy
-    displayName: Deploy
+  - deployment: Deploy_PROD
+    displayName: Deploy PROD
     pool:
       vmImage: ubuntu-latest
     # creates an environment if it doesn't exist

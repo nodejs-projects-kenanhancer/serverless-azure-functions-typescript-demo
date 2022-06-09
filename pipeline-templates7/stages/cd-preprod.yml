@@ -2,8 +2,8 @@ stages:
 - stage: CD_PREPROD
   displayName: CD PREPROD
   jobs:
-  - deployment: Deploy
-    displayName: Deploy
+  - deployment: Deploy_PREPROD
+    displayName: Deploy PREPROD
     pool:
       vmImage: ubuntu-latest
     # creates an environment if it doesn't exist

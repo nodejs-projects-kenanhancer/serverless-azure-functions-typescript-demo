@@ -2,8 +2,8 @@ stages:
 - stage: CD_UAT
   displayName: CD UAT
   jobs:
-  - deployment: Deploy
-    displayName: Deploy
+  - deployment: Deploy_UAT
+    displayName: Deploy UAT
     pool:
       vmImage: ubuntu-latest
     # creates an environment if it doesn't exist
