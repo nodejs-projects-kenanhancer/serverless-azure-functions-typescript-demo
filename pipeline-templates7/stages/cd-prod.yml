@@ -7,7 +7,7 @@ stages:
     pool:
       vmImage: ubuntu-latest
     # creates an environment if it doesn't exist
-    environment: 'DEV'
+    environment: 'PROD'
     strategy:
       # default deployment strategy, more coming...
       runOnce:
