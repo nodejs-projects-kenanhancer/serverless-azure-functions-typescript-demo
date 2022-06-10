@@ -1,6 +1,6 @@
 stages:
-- stage: Build_Stage
-  displayName: Build & Test
+- stage: Build_Test_Stage
+  displayName: Build & Test Stage
   jobs:
   - template: ../jobs/include-jfrog.yml
   - template: ../jobs/include-tools.yml

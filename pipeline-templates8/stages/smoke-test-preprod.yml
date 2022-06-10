@@ -1,6 +1,7 @@
 stages:
-- stage: PREPROD_SMOKE_TEST
-  displayName: PREPROD Smoke Test
+- stage: Smoke_Test_PREPROD_Stage
+  displayName: Smoke Test PREPROD Stage
+  dependsOn: Deploy_PREPROD_Stage
   jobs:
   - job: PostSubmission_Test
     displayName: Post Submission Test

@@ -1,7 +1,7 @@
 stages:
 - stage: Deploy_UAT_Stage
   displayName: Deploy UAT Stage
-  dependsOn: Build_Stage
+  dependsOn: Build_Test_Stage
   jobs:
   - deployment: Deploy_UAT
     displayName: Deploy UAT

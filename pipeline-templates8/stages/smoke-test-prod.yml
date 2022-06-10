@@ -1,6 +1,7 @@
 stages:
-- stage: UAT_SMOKE_TEST
-  displayName: UAT Smoke Test
+- stage: Smoke_Test_PROD_Stage
+  displayName: Smoke Test PROD Stage
+  dependsOn: Deploy_PROD_Stage
   jobs:
   - job: PostSubmission_Test
     displayName: Post Submission Test

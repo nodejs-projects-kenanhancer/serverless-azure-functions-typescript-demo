@@ -1,6 +1,7 @@
 stages:
-- stage: DEV_SMOKE_TEST
-  displayName: DEV Smoke Test
+- stage: Smoke_Test_DEV_Stage
+  displayName: Smoke Test DEV Stage
+  dependsOn: Deploy_DEV_Stage
   jobs:
   - job: PostSubmission_Test
     displayName: Post Submission Test
