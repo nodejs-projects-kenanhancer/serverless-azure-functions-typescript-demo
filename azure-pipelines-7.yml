@@ -9,6 +9,8 @@ trigger:
 pool: 
   vmImage: ubuntu-latest
 
+name: $(Release.ReleaseName)
+
 stages:
 - template: pipeline-templates7/stages/ci.yml
 - template: pipeline-templates7/stages/cd-dev.yml
