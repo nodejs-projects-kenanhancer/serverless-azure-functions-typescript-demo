@@ -8,7 +8,7 @@ stages:
     pool:
       vmImage: ubuntu-latest
     # creates an environment if it doesn't exist
-    environment: 'PROD'
+    environment: 'BrokerAdapter'
     strategy:
       # default deployment strategy, more coming...
       runOnce:
