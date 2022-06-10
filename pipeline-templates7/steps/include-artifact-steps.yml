@@ -6,16 +6,16 @@ steps:
     workingDir: $(System.DefaultWorkingDirectory)
     verbose: false
     customCommand: install
-- task: Npm@1
-  displayName: Compile
-  inputs:
-    command: custom
-    workingDir: $(System.DefaultWorkingDirectory)
-    verbose: false
-    customCommand: run compile
+# - task: Npm@1
+#   displayName: Compile
+#   inputs:
+#     command: custom
+#     workingDir: $(System.DefaultWorkingDirectory)
+#     verbose: false
+#     customCommand: run compile
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '.serverless'
+    SourceFolder: 'dist'
     Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)'
 - task: PublishBuildArtifacts@1

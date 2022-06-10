@@ -5,7 +5,7 @@
 
 # Node artifact files
 node_modules/
-dist/
+# dist/
 .env
 .webpack
 .serverless
@@ -30,7 +30,7 @@ __azurite*
 
 # Maven
 target/
-dist/
+# dist/
 
 # JetBrains IDE
 .idea/
