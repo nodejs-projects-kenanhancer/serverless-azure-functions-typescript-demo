@@ -9,7 +9,7 @@ trigger:
 pool: 
   vmImage: ubuntu-latest
 
-name: $(Release.ReleaseName)_$(rev:r)
+name: $(SourceBranchName)_$(Date:yyyyMMdd)_$(rev:r)
 
 stages:
 - template: pipeline-templates7/stages/ci.yml
