@@ -1,5 +1,5 @@
 steps:
-- script: echo '$(Build.Build.BuildId)'
+# - script: echo '$(Build.Build.BuildId)'
 - script: echo Fetch JFrog Secrets
   displayName: Fetch JFrog Secrets
 - script: echo JFrog Artifactory Login
