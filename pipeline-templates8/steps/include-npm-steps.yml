@@ -1,0 +1,21 @@
+steps:
+# - task: Npm@1
+#   displayName: Install Application Dependencies
+#   inputs:
+#     workingDir: $(System.DefaultWorkingDirectory)
+#     verbose: false
+- task: Npm@1
+  displayName: Install Application Dependencies
+  inputs:
+    workingDir: $(System.DefaultWorkingDirectory)
+    verbose: false
+- script: echo Validate Environment Variables
+  displayName: Validate Environment Variables
+- script: echo Unit testing
+  displayName: Unit testing
+- script: echo Integration testing
+  displayName: Integration testing
+- script: echo Publish code coverage from Unit testing
+  displayName: Publish code coverage from Unit testing
+- script: echo Finish Build
+  displayName: Finish Build

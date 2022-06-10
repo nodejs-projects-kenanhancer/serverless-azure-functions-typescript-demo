@@ -1,0 +1,24 @@
+steps:
+- task: Npm@1
+  displayName: Install Dependencies
+  inputs:
+    command: custom
+    workingDir: $(System.DefaultWorkingDirectory)
+    verbose: false
+    customCommand: install
+# - task: Npm@1
+#   displayName: Compile
+#   inputs:
+#     command: custom
+#     workingDir: $(System.DefaultWorkingDirectory)
+#     verbose: false
+#     customCommand: run compile
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'dist'
+    Contents: '**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: azure-functions-typescript'
+  inputs:
+    ArtifactName: azure-functions-typescript

@@ -1,0 +1,17 @@
+stages:
+- stage: Deploy_PREPROD_Stage
+  displayName: Deploy PREPROD Stage
+  dependsOn: Build_Stage
+  jobs:
+  - deployment: Deploy_PREPROD
+    displayName: Deploy PREPROD
+    pool:
+      vmImage: ubuntu-latest
+    # creates an environment if it doesn't exist
+    environment: 'PREPROD'
+    strategy:
+      # default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment

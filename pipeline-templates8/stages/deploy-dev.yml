@@ -1,0 +1,18 @@
+stages:
+- stage: Deploy_DEV_Stage
+  displayName: Deploy DEV Stage
+  dependsOn: Build_Stage
+  name: Build_$(Build.BuildId)
+  jobs:
+  - deployment: Deploy_DEV
+    displayName: Deploy DEV
+    pool:
+      vmImage: ubuntu-latest
+    # creates an environment if it doesn't exist
+    environment: 'DEV'
+    strategy:
+      # default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment

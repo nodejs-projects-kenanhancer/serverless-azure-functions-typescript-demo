@@ -1,0 +1,8 @@
+stages:
+- stage: Build_Stage
+  displayName: Build & Test
+  jobs:
+  - template: ../jobs/include-jfrog.yml
+  - template: ../jobs/include-tools.yml
+  - template: ../jobs/include-npm-steps.yml
+  - template: ../jobs/include-artifact-steps.yml

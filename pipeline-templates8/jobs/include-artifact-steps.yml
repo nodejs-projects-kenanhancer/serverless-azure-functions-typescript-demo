@@ -1,0 +1,6 @@
+jobs:
+- job: Include_Artifact_Steps
+  displayName: Include Artifact Steps
+  dependsOn: Include_NPM_Steps
+  steps:
+  - template: ../steps/include-artifact-steps.yml

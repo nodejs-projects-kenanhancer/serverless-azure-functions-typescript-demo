@@ -1,0 +1,17 @@
+stages:
+- stage: Deploy_UAT_Stage
+  displayName: Deploy UAT Stage
+  dependsOn: Build_Stage
+  jobs:
+  - deployment: Deploy_UAT
+    displayName: Deploy UAT
+    pool:
+      vmImage: ubuntu-latest
+    # creates an environment if it doesn't exist
+    environment: 'UAT'
+    strategy:
+      # default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment

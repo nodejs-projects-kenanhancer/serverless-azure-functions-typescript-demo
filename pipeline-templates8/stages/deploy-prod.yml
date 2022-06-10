@@ -1,0 +1,17 @@
+stages:
+- stage: Deploy_PROD_Stage
+  displayName: Deploy PROD Stage
+  dependsOn: Build_Stage
+  jobs:
+  - deployment: Deploy_PROD
+    displayName: Deploy PROD
+    pool:
+      vmImage: ubuntu-latest
+    # creates an environment if it doesn't exist
+    environment: 'PROD'
+    strategy:
+      # default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - script: echo my first deployment
