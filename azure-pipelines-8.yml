@@ -14,13 +14,13 @@ name: Build_$(Build.BuildId)
 stages:
 - template: pipeline-templates8/stages/build.yml
 - template: pipeline-templates8/stages/deploy-dev.yml
-- template: pipeline-templates8/stages/dev-smoke-test.yml
+- template: pipeline-templates8/stages/smoke-test-dev.yml
 - template: pipeline-templates8/stages/deploy-uat.yml
-- template: pipeline-templates8/stages/uat-smoke-test.yml
+- template: pipeline-templates8/stages/smoke-test-uat.yml
 - template: pipeline-templates8/stages/deploy-preprod.yml
-- template: pipeline-templates8/stages/preprod-smoke-test.yml
+- template: pipeline-templates8/stages/smoke-test-preprod.yml
 - template: pipeline-templates8/stages/deploy-prod.yml
-- template: pipeline-templates8/stages/prod-smoke-test.yml
+- template: pipeline-templates8/stages/smoke-test-prod.yml
 
   # parameters:
   #     AdminPassword: $(AdminPassword)
